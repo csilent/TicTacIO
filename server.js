@@ -34,6 +34,18 @@ io.on("connection", function(socket) {
 		var s = new Date();
 		socket.emit("sayAll", dataFromClient + " ; " + s.toTimeString());
 	});
+	socket.on("login", function(userName,password) {
+		var realPassword=db.collection("loginInfo").findOne({"username":username},function(err, result) {
+			console.log(result.password);
+		});
+		var s = new Date();
+		socket.emit("sayAll", dataFromClient + " ; " + s.toTimeString());
+	});
+	socket.on("newUser", function(userName,password) {
+		console.log(dataFromClient);
+		var s = new Date();
+		socket.emit("sayAll", dataFromClient + " ; " + s.toTimeString());
+	});
 
 });
 
