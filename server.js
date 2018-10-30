@@ -1,6 +1,4 @@
 //Mango set up
-//this is a test
-//ryan test merge
 var mongodb = require("mongodb");
 var MongoClient = mongodb.MongoClient;
 var ObjectID = mongodb.ObjectID;
@@ -19,9 +17,12 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
-function moretest(){
 
+var doStuff = function(things) {
+	this.things = 1;
+	this.things++;
 }
+
 app.use(express.static("pub"));
 
 function joinMainLobby(socket,userName){
