@@ -19,10 +19,11 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
-function doThisThing(){
+function moretest(){
 
 }
 app.use(express.static("pub"));
+
 function joinMainLobby(socket,userName){
 	playerData[socket.id]={name:userName,room:'lobby'};
 	socket.leave('prelobby');
