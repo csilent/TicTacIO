@@ -1,10 +1,3 @@
-/*
-	To set up client side:
-		In HTML: 		<script src="/socket.io/socket.io.js" type="text/javascript"></script>
-		In client.js	var socket = io();
-*/
-
-
 var socket = io();
 
 socket.on("sayAll", function(dataFromServer) {
@@ -12,12 +5,27 @@ socket.on("sayAll", function(dataFromServer) {
 });
 
 function startItAll() {
-	socket.emit("sayHello", "Hello world");
-	socket.emit("sayHello", 42);
-	socket.emit("sayHello", {name: "Mike", age: 99});
+	$("#loginButton").click(function() {
+		socket.emit("login", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
+			if(!success){
+				$("#error").html("Username/password does not match");
+			}
+			else{
+				$("#error").html("");
+				$("#login").hide();
+			}
+		});
+	});
+	$("#newUserButton").click(function() {
+		socket.emit("newUser", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
+			if(!success){
+				$("#error").html("username already taken");
+			}
+			else{
+				$("#error").html("");
+				$("#login").hide();
+			}
+		});
+	});
 }
-
-
-
-
 $(startItAll);
