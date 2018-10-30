@@ -14,13 +14,21 @@ var socketio = require("socket.io");
 var io = socketio(server);
 //Global vars
 var loginInfo;
-var userNames=[];
+var playerData=[];
+var games=[];
 
 app.use(express.static("pub"));
 function joinMainLobby(socket,userName){
-	userNames[socket.id]=userName;
+	playerData[socket.id]={name:userName,room:'lobby'};
 	socket.leave('prelobby');
 	socket.join('lobby');
+}
+function getGamesHtml(){
+	var ret="";
+	for(let i=0;i<games.length;i++){
+		ret+="<tr><th>"+games[i].name+"</th></tr>"
+	}
+	return ret;
 }
 io.on("connection", function(socket) {
 	console.log("Somebody connected.");
@@ -28,7 +36,7 @@ io.on("connection", function(socket) {
 	socket.on("disconnect", function() {
 		console.log("Somebody disconnected.");
 		socket.leaveAll();
-		delete userNames[socket.id];
+		delete playerData[socket.id];
 	});
 	socket.on("login", function(dataFromClient,errorFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
@@ -53,7 +61,25 @@ io.on("connection", function(socket) {
 			}
 		});
 	});
+	socket.on("newGame", function(){
+		socket.leave('lobby');
+		games.push({name:playerData[socket.id].name});
+		socket.join(playerData[socket.id].name);
+		playerData[socket.id].room=playerData[socket.id].name;
+		io.to('lobby').emit("updateGames",getGamesHtml());
 
+	});
+	socket.on("getGames",function(setHtml){
+		setHtml(getGamesHtml());
+	});
+	socket.on("joinedLobby",function(){
+		io.to('lobby').emit("updateGames",getGamesHtml());
+	});
+	socket.on("joinGame",function(lobbyIndex){
+		socket.leave('lobby');
+		socket.join(games[lobbyIndex].name);
+		playerData[socket.id].room=games[lobbyIndex].name;
+	});
 });
 client.connect(function(err) {
 	if (err != null) throw err;

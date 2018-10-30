@@ -1,10 +1,17 @@
 var socket = io();
 
-socket.on("sayAll", function(dataFromServer) {
-	console.log("The server said: " + dataFromServer);
+socket.on("updateGames", function(games) {
+	console.log(games);
+	$("#games").html(games);
+	$("#games tr").click(function() {
+		$("#lobby").hide();
+		$("#game").show();
+		socket.emit("joinGame",$(this).index());
+	});
 });
 
 function startItAll() {
+	$("#lobby").hide();
 	$("#loginButton").click(function() {
 		socket.emit("login", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
 			if(!success){
@@ -13,6 +20,8 @@ function startItAll() {
 			else{
 				$("#error").html("");
 				$("#login").hide();
+				$("#lobby").show();
+				socket.emit("joinedLobby");
 			}
 		});
 	});
@@ -24,8 +33,15 @@ function startItAll() {
 			else{
 				$("#error").html("");
 				$("#login").hide();
+				$("#lobby").show();
+				socket.emit("joinedLobby");
 			}
 		});
+	});
+	$("#newGameButton").click(function(){
+		socket.emit("newGame");
+		$("#lobby").hide();
+		$("#game").show();
 	});
 }
 $(startItAll);
