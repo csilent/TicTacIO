@@ -53,26 +53,26 @@ io.on("connection", function(socket) {
 		socket.leaveAll();
 		delete playerData[socket.id];
 	});
-	socket.on("login", function(dataFromClient,errorFunction) {
+	socket.on("login", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
 			if(result.length>0&&result[0].password===dataFromClient.password){
 				joinMainLobby(socket,dataFromClient.userName);
-				errorFunction(true);
+				successFunction(true);
 			}else{
 				console.log("login failed");
-				errorFunction(false);
+				successFunction(false);
 			}
 		});
 	});
-	socket.on("newUser", function(dataFromClient,errorFunction) {
+	socket.on("newUser", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
 			if(result.length==0){
 				loginInfo.insertOne({userName:dataFromClient.userName,password:dataFromClient.password});
 				joinMainLobby(socket,dataFromClient.userName);
-				errorFunction(true);
+				successFunction(true);
 			}else{
 				console.log("name exists");
-				errorFunction(false);
+				successFunction(false);
 			}
 		});
 	});
@@ -91,10 +91,10 @@ io.on("connection", function(socket) {
 	socket.on("joinedLobby",function(){
 		io.to('lobby').emit("updateGames",getGamesHtml());
 	});
-	socket.on("joinGame",function(lobbyIndex){
+	socket.on("joinGame",function(gameIndex){
 		socket.leave('lobby');
-		socket.join(games[lobbyIndex].name);
-		playerData[socket.id].room=games[lobbyIndex].name;
+		socket.join(games[gameIndex].name);
+		playerData[socket.id].room=games[gameIndex].name;
 		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
 	});
 	socket.on("getPlayers",function(setHtml){
