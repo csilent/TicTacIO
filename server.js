@@ -6,9 +6,7 @@ var MongoClient = mongodb.MongoClient;
 var ObjectID = mongodb.ObjectID;
 var client = new MongoClient("mongodb://localhost:27017", { useNewUrlParser: true });
 var db;
-function thisTest(){
-	return 1;
-}
+
 //Express setup
 var express = require("express");
 var app = express();
@@ -21,7 +19,9 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
+function doThisThing(){
 
+}
 app.use(express.static("pub"));
 function joinMainLobby(socket,userName){
 	playerData[socket.id]={name:userName,room:'lobby'};
