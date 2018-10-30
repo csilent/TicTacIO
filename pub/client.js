@@ -9,9 +9,14 @@ socket.on("updateGames", function(games) {
 		socket.emit("joinGame",$(this).index());
 	});
 });
+socket.on("updatePlayers",function(players){
+	console.log(players);
+	$("#players").html(players);
+});
 
 function startItAll() {
 	$("#lobby").hide();
+	$("#game").hide();
 	$("#loginButton").click(function() {
 		socket.emit("login", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
 			if(!success){

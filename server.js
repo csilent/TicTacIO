@@ -31,6 +31,14 @@ function getGamesHtml(){
 	}
 	return ret;
 }
+function getPlayersHtml(room){
+	var clients = io.sockets.adapter.rooms[room].sockets;  
+	var ret="";
+	for(var clientId in clients ){
+		ret+="<tr><th>"+playerData[clientId].name+"</th></tr>"
+	}
+	return ret;
+}
 io.on("connection", function(socket) {
 	console.log("Somebody connected.");
 	socket.join('preLobby');
@@ -68,6 +76,7 @@ io.on("connection", function(socket) {
 		socket.join(playerData[socket.id].name);
 		playerData[socket.id].room=playerData[socket.id].name;
 		io.to('lobby').emit("updateGames",getGamesHtml());
+		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
 
 	});
 	socket.on("getGames",function(setHtml){
@@ -80,6 +89,10 @@ io.on("connection", function(socket) {
 		socket.leave('lobby');
 		socket.join(games[lobbyIndex].name);
 		playerData[socket.id].room=games[lobbyIndex].name;
+		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
+	});
+	socket.on("getPlayers",function(setHtml){
+		setHtml(getPlayersHtml(playerData[socket.id].room));
 	});
 });
 client.connect(function(err) {
