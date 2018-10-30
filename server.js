@@ -16,6 +16,40 @@ var io = socketio(server);
 var loginInfo;
 var userNames=[];
 
+
+/**
+* Player object. Can store individual game details. Insert these into DB?? 
+*/
+var Player = function(name, id) {   // Name of client and client id (ObjectID? socketID?)
+    this.name = name;
+    this.id = id;
+    this.currentTurn = true;    // Bool value to determine if it is this players move.
+    this.totalMoves = 0;        // Keep track of total moves by player
+    this.totalWins = 0;
+}
+
+Player.prototype.getTotalMoves = function() {  // Getter for players total moves
+    return this.totalMoves;
+}
+Player.prototype.getTotalWins = function() {
+    return this.totalMoves;
+}
+
+Player.prototype.setCurrentTurn = function(turn) {  // Setter. Make this Player's currentTurn = 'turn'
+    this.currentTurn = turn;
+    if(turn) {
+        // $('#...').text("It is Your turn");   // **need html DOM element.. update client GUI that it is their turn
+    }
+    else{
+        // $(#"...").text("Opponents turn");   // **need html DOM element.. update client GUI that he is waiting.
+    }
+}
+
+Player.prototype.getName = function() {
+    return this.name;
+}
+
+
 app.use(express.static("pub"));
 function joinMainLobby(socket,userName){
 	userNames[socket.id]=userName;
