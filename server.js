@@ -31,18 +31,20 @@ function joinMainLobby(socket,userName){
 	socket.join('lobby');
 }
 function getGamesHtml(){
-	var ret="";
+	var ret="<table>";
 	for(let i=0;i<games.length;i++){
 		ret+="<tr><th>"+games[i].name+"</th></tr>"
 	}
+	ret+="</table>";
 	return ret;
 }
 function getPlayersHtml(room){
 	var clients = io.sockets.adapter.rooms[room].sockets;  
-	var ret="";
+	var ret="<table>";
 	for(var clientId in clients ){
 		ret+="<tr><th>"+playerData[clientId].name+"</th></tr>"
 	}
+	ret+="</table>";
 	return ret;
 }
 io.on("connection", function(socket) {
