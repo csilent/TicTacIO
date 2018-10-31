@@ -17,12 +17,6 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
-
-var doStuff = function(things) {
-	this.things = 1;
-	this.things++;
-}
-
 app.use(express.static("pub"));
 
 function joinMainLobby(socket,userName){
