@@ -48,5 +48,10 @@ function startItAll() {
 		$("#lobby").hide();
 		$("#game").show();
 	});
+	$("#leaveGameButton").click(function(){
+		$("#lobby").show();
+		$("#game").hide();
+		socket.emit("leaveGame");
+	});
 }
 $(startItAll);

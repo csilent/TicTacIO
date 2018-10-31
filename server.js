@@ -93,6 +93,22 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room=games[gameIndex].name;
 		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
 	});
+	socket.on("leaveGame",function(){
+		socket.leaveAll();
+		socket.join('lobby');
+		let room=playerData[socket.id].room;
+		io.to(room).emit("updatePlayers",getPlayersHtml(room));
+		if(io.sockets.adapter.rooms[room].sockets.length===0){
+			for(let i=0;i<games.length;i++){
+				if(games[i].name===room){
+					games.splice(i,1);
+					continue;
+				}
+			}
+		}
+		playerData[socket.id].room='lobby';
+		io.to('lobby').emit("updateGames",getGamesHtml());
+	});
 	socket.on("getPlayers",function(setHtml){
 		setHtml(getPlayersHtml(playerData[socket.id].room));
 	});
