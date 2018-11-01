@@ -24,13 +24,6 @@ function joinMainLobby(socket,userName){
 	socket.leave('prelobby');
 	socket.join('lobby');
 }
-function getGame(room){
-	for(i=0;i<games.length;i++){
-		if(games[i].name===room){
-			return games[i];
-		}
-	}
-}
 function getGamesHtml(){
 	var ret="<table>";
 	for(let i=0;i<games.length;i++){
