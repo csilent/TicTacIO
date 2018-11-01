@@ -13,6 +13,10 @@ socket.on("updatePlayers",function(players){
 	console.log(players);
 	$("#players").html(players);
 });
+socket.on("updateGameBoard",function(gameBoard){
+	console.log(gameBoard);
+	$("#gameBoard").html(gameBoard);
+});
 
 function startItAll() {
 	$("#lobby").hide();

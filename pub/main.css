@@ -1,3 +1,6 @@
 table,th,td{
     border: 2px solid black;
 }
+.gameTile{
+    width:150px;
+}

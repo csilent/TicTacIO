@@ -24,6 +24,13 @@ function joinMainLobby(socket,userName){
 	socket.leave('prelobby');
 	socket.join('lobby');
 }
+function getGame(room){
+	for(i=0;i<games.length;i++){
+		if(games[i].name===room){
+			return games[i];
+		}
+	}
+}
 function getGamesHtml(){
 	var ret="<table>";
 	for(let i=0;i<games.length;i++){
@@ -40,6 +47,29 @@ function getPlayersHtml(room){
 	}
 	ret+="</table>";
 	return ret;
+}
+function getGameBoardHtml(gameBoard){
+	var ret="<table>";
+	for(i=0;i<gameBoard.length;i++){
+		ret+="<tr>";
+		for(j=0;j<gameBoard.length;j++){
+			ret+="<td> <img src="+gameBoard[i][j]+".png class=\"gameTile\"></td>";
+		}
+		ret+="</tr>";
+	}
+	ret+="</table>"
+	return ret;
+}
+function createGameBoard(n){
+	var gameBoard=[];
+	var row=[];
+	for(i=0;i<n;i++){
+		row.push("blank");
+	}
+	for(i=0;i<n;i++){
+		gameBoard.push(row);
+	}
+	return gameBoard;
 }
 io.on("connection", function(socket) {
 	console.log("Somebody connected.");
@@ -74,12 +104,13 @@ io.on("connection", function(socket) {
 	});
 	socket.on("newGame", function(){
 		socket.leave('lobby');
-		games.push({name:playerData[socket.id].name});
-		socket.join(playerData[socket.id].name);
-		playerData[socket.id].room=playerData[socket.id].name;
+		games.push({name:playerData[socket.id].name,gameBoard:createGameBoard(3)});
+		console.log(games[games.length-1].gameBoard);
+		playerData[socket.id].room=games.length-1;
+		socket.join(playerData[socket.id].room);
 		io.to('lobby').emit("updateGames",getGamesHtml());
 		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
-
+		io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard));
 	});
 	socket.on("getGames",function(setHtml){
 		setHtml(getGamesHtml());
@@ -89,9 +120,10 @@ io.on("connection", function(socket) {
 	});
 	socket.on("joinGame",function(gameIndex){
 		socket.leave('lobby');
-		socket.join(games[gameIndex].name);
-		playerData[socket.id].room=games[gameIndex].name;
+		socket.join(gameIndex);
+		playerData[socket.id].room=gameIndex;
 		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
+		io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard));
 	});
 	socket.on("leaveGame",function(){
 		socket.leaveAll();
@@ -99,12 +131,7 @@ io.on("connection", function(socket) {
 		let room=playerData[socket.id].room;
 		io.to(room).emit("updatePlayers",getPlayersHtml(room));
 		if(io.sockets.adapter.rooms[room].sockets.length===0){
-			for(let i=0;i<games.length;i++){
-				if(games[i].name===room){
-					games.splice(i,1);
-					continue;
-				}
-			}
+			games.splice(room,1);
 		}
 		playerData[socket.id].room='lobby';
 		io.to('lobby').emit("updateGames",getGamesHtml());
