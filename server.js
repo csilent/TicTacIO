@@ -18,7 +18,64 @@ var loginInfo;
 var playerData=[];
 var games=[];
 app.use(express.static("pub"));
-
+function getOpposite(piece){
+	if(piece){
+		
+	}
+}
+function winCheck(gameBoard,piece){
+	let n=gameBoard.length;
+	for(i=0;i<n;i++){
+		if(gameBoard[i][0]===piece){
+			let win=true;
+			for(j=0;j<n;j++){
+				win=win&&(gameboard[i][j]===piece);
+			}
+			if(win){
+				return true;
+			}
+		}
+	}
+	for(i=0;i<n;i++){
+		if(gameBoard[0][i]===piece){
+			let win=true;
+			for(j=0;j<n;j++){
+				win=win&&(gameboard[j][i]===piece);
+			}
+			if(win){
+				return true;
+			}
+		}
+	}
+	if(gameBoard[0][0]===piece){
+		let win=true;
+		for(i=0;i<n;i++){
+			win=win&&(gameboard[i][i]===piece);
+		}
+		if(win){
+			return true;
+		}
+	}
+	if(gameBoard[0][n]===piece){
+		let win=true;
+		for(i=0;i<n;i++){
+			win=win&&(gameboard[i][n-(1+i)]===piece);
+		}
+		if(win){
+			return true;
+		}
+	}
+	return false;
+}
+function fullBoardCheck(gameBoard){
+	let full=true;
+	for(i=0;i<gameBoard.length;i++){
+		if(gameBoard[i].indexOf("blank")==-1){
+			full=false;
+		}
+	}
+	return full;
+}
 function joinMainLobby(socket,userName){
 	playerData[socket.id]={name:userName,room:'lobby',team:''};
 	socket.leaveAll();
@@ -106,7 +163,11 @@ io.on("connection", function(socket) {
 	});
 	socket.on("newGame", function(boardSize){
 		socket.leaveAll();
-		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize)};
+		let firstTeam='x';
+		if(Math.random>.5){
+			firstTeam='o';
+		}
+		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize),turn:firstTeam};
 		let roomString=playerData[socket.id].name;
 		console.log(roomString);
 		playerData[socket.id].room=roomString;
@@ -154,6 +215,20 @@ io.on("connection", function(socket) {
 	});
 	socket.on("getPlayers",function(setHtml){
 		setHtml(getPlayersHtml(playerData[socket.id].room));
+	});
+	socket.on("placePiece",function(x,y,errorFunction){
+		console.log("Placing piece at "+x+":"+y);
+		if(games[playerData[socket.id].room].turn===playerData[socket.id].team){
+			if(gameBoard[x][y]==="blank"){
+				
+			}
+			else{
+				errorFunction("This square is already occupied");
+			}
+		}
+		else{
+			errorFunction("It is not your turn");
+		}
 	});
 });
 client.connect(function(err) {

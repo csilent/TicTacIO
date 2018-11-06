@@ -23,6 +23,12 @@ socket.on("updatePlayers",function(players){
 socket.on("updateGameBoard",function(gameBoard){
 	console.log(gameBoard);
 	$("#gameBoard").html(gameBoard);
+	$("#gameBoard td").click(function() {
+		socket.emit("placePiece",$(this).parent().index(),$(this).index(),function(errorMsg){
+			$("#boardError").html(errorMsg);
+		});
+	});
+
 });
 
 function startItAll() {
