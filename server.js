@@ -20,14 +20,15 @@ var games=[];
 app.use(express.static("pub"));
 
 function joinMainLobby(socket,userName){
-	playerData[socket.id]={name:userName,room:'lobby'};
-	socket.leave('prelobby');
+	playerData[socket.id]={name:userName,room:'lobby',team:''};
+	socket.leaveAll();
 	socket.join('lobby');
 }
 function getGamesHtml(){
+	console.log(games);
 	var ret="<table>";
-	for(let i=0;i<games.length;i++){
-		ret+="<tr><th>"+games[i].name+"</th></tr>"
+	for(var game in games){
+		ret+="<tr><th>"+games[game].name+"</th></tr>"
 	}
 	ret+="</table>";
 	return ret;
@@ -36,9 +37,17 @@ function getPlayersHtml(room){
 	var clients = io.sockets.adapter.rooms[room].sockets;  
 	var ret="<table>";
 	for(var clientId in clients ){
-		ret+="<tr><th>"+playerData[clientId].name+"</th></tr>"
+		ret+="<tr><th>"+playerData[clientId].name+"</th></tr>";
 	}
 	ret+="</table>";
+	return ret;
+}
+function getNumPlayers(room){
+	var clients = io.sockets.adapter.rooms[room].sockets;  
+	let ret=0;
+	for(var clientId in clients ){
+		ret++;
+	}
 	return ret;
 }
 function getGameBoardHtml(gameBoard){
@@ -96,14 +105,16 @@ io.on("connection", function(socket) {
 		});
 	});
 	socket.on("newGame", function(){
-		socket.leave('lobby');
-		games.push({name:playerData[socket.id].name,gameBoard:createGameBoard(3)});
-		console.log(games[games.length-1].gameBoard);
-		playerData[socket.id].room=games.length-1;
-		socket.join(playerData[socket.id].room);
+		socket.leaveAll();
+		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoard:createGameBoard(3)};
+		let roomString=playerData[socket.id].name;
+		console.log(roomString);
+		playerData[socket.id].room=roomString;
+		socket.join(roomString);
 		io.to('lobby').emit("updateGames",getGamesHtml());
-		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
-		io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard));
+		io.to(roomString).emit("updatePlayers",getPlayersHtml(roomString));
+		io.to(roomString).emit("updateGameBoard",getGameBoardHtml(games[roomString].gameBoard));
+		playerData[socket.id].team='o';
 	});
 	socket.on("getGames",function(setHtml){
 		setHtml(getGamesHtml());
@@ -111,22 +122,34 @@ io.on("connection", function(socket) {
 	socket.on("joinedLobby",function(){
 		io.to('lobby').emit("updateGames",getGamesHtml());
 	});
-	socket.on("joinGame",function(gameIndex){
-		socket.leave('lobby');
-		socket.join(gameIndex);
-		playerData[socket.id].room=gameIndex;
-		io.to(playerData[socket.id].room).emit("updatePlayers",getPlayersHtml(playerData[socket.id].room));
-		io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard));
+	socket.on("joinGame",function(gameName,successFunction){
+		console.log(io.sockets.adapter.rooms[gameName].sockets.length);
+		if(getNumPlayers(gameName)<2){
+			socket.leaveAll();
+			socket.join(gameName);
+			playerData[socket.id].room=gameName;
+			io.to(gameName).emit("updatePlayers",getPlayersHtml(gameName));
+			io.to(gameName).emit("updateGameBoard",getGameBoardHtml(games[gameName].gameBoard));
+			playerData[socket.id].team='x';
+			successFunction(true);
+		}
+		else{
+			successFunction(false);
+		}
 	});
 	socket.on("leaveGame",function(){
-		socket.leaveAll();
-		socket.join('lobby');
 		let room=playerData[socket.id].room;
-		io.to(room).emit("updatePlayers",getPlayersHtml(room));
-		if(io.sockets.adapter.rooms[room].sockets.length===0){
-			games.splice(room,1);
+		if(getNumPlayers(room)===1){
+			delete games[room];
+			socket.leaveAll();
+			socket.join('lobby');
 		}
-		playerData[socket.id].room='lobby';
+		else{
+			socket.leaveAll();
+			socket.join('lobby');
+			io.to(room).emit("updatePlayers",getPlayersHtml(room));
+			playerData[socket.id].room='lobby';
+		}
 		io.to('lobby').emit("updateGames",getGamesHtml());
 	});
 	socket.on("getPlayers",function(setHtml){

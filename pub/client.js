@@ -4,9 +4,16 @@ socket.on("updateGames", function(games) {
 	console.log(games);
 	$("#games").html(games);
 	$("#games tr").click(function() {
-		$("#lobby").hide();
-		$("#game").show();
-		socket.emit("joinGame",$(this).index());
+		socket.emit("joinGame",$(this).text(),function(success){
+			if(success){
+				$("#gameError").html("");
+				$("#lobby").hide();
+				$("#game").show();
+			}
+			else{
+				$("#gameError").html("Lobby is full");
+			}
+		});
 	});
 });
 socket.on("updatePlayers",function(players){
