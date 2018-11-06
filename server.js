@@ -104,9 +104,9 @@ io.on("connection", function(socket) {
 			}
 		});
 	});
-	socket.on("newGame", function(){
+	socket.on("newGame", function(boardSize){
 		socket.leaveAll();
-		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoard:createGameBoard(3)};
+		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize)};
 		let roomString=playerData[socket.id].name;
 		console.log(roomString);
 		playerData[socket.id].room=roomString;

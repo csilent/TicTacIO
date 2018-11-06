@@ -55,7 +55,7 @@ function startItAll() {
 		});
 	});
 	$("#newGameButton").click(function(){
-		socket.emit("newGame");
+		socket.emit("newGame",$("#gameBoardSize").val());
 		$("#lobby").hide();
 		$("#game").show();
 	});
