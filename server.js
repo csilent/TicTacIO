@@ -19,9 +19,13 @@ var playerData=[];
 var games=[];
 app.use(express.static("pub"));
 function getOpposite(piece){
-	if(piece){
-		
+	if(piece==='o'){
+		return 'x';
 	}
+	else if(piece==='x'){
+		return 'o';
+	}
+	return 'blank';
 }
 function winCheck(gameBoard,piece){
 	let n=gameBoard.length;
@@ -29,7 +33,7 @@ function winCheck(gameBoard,piece){
 		if(gameBoard[i][0]===piece){
 			let win=true;
 			for(j=0;j<n;j++){
-				win=win&&(gameboard[i][j]===piece);
+				win=win&&(gameBoard[i][j]===piece);
 			}
 			if(win){
 				return true;
@@ -40,7 +44,7 @@ function winCheck(gameBoard,piece){
 		if(gameBoard[0][i]===piece){
 			let win=true;
 			for(j=0;j<n;j++){
-				win=win&&(gameboard[j][i]===piece);
+				win=win&&(gameBoard[j][i]===piece);
 			}
 			if(win){
 				return true;
@@ -50,16 +54,21 @@ function winCheck(gameBoard,piece){
 	if(gameBoard[0][0]===piece){
 		let win=true;
 		for(i=0;i<n;i++){
-			win=win&&(gameboard[i][i]===piece);
+			win=win&&(gameBoard[i][i]===piece);
 		}
 		if(win){
 			return true;
 		}
 	}
-	if(gameBoard[0][n]===piece){
+	if(gameBoard[0][n-1]===piece){
 		let win=true;
-		for(i=0;i<n;i++){
-			win=win&&(gameboard[i][n-(1+i)]===piece);
+		for(i=0;i<n-1;i++){
+			let a=i+1
+			let b=(n-(1+i));
+			let msg="Checking "+a+":"+b;
+			console.log(msg)
+			win=win&&(gameBoard[i+1][n-i]===piece);
+			console.log(win);
 		}
 		if(win){
 			return true;
@@ -70,7 +79,7 @@ function winCheck(gameBoard,piece){
 function fullBoardCheck(gameBoard){
 	let full=true;
 	for(i=0;i<gameBoard.length;i++){
-		if(gameBoard[i].indexOf("blank")==-1){
+		if(gameBoard[i].indexOf("blank")!=-1){
 			full=false;
 		}
 	}
@@ -120,13 +129,13 @@ function getGameBoardHtml(gameBoard){
 	return ret;
 }
 function createGameBoard(n){
-	var gameBoard=[];
-	var row=[];
+	var gameBoard=new Array(n);
 	for(i=0;i<n;i++){
-		row.push("blank");
-	}
-	for(i=0;i<n;i++){
-		gameBoard.push(row);
+		var row=new Array(n);
+		for(j=0;j<n;j++){
+			row[j]="blank";
+		}
+		gameBoard[i]=row;
 	}
 	return gameBoard;
 }
@@ -219,8 +228,18 @@ io.on("connection", function(socket) {
 	socket.on("placePiece",function(x,y,errorFunction){
 		console.log("Placing piece at "+x+":"+y);
 		if(games[playerData[socket.id].room].turn===playerData[socket.id].team){
-			if(gameBoard[x][y]==="blank"){
-				
+			if(games[playerData[socket.id].room].gameBoard[x][y]==="blank"){
+				games[playerData[socket.id].room].gameBoard[x][y]=playerData[socket.id].team;
+				games[playerData[socket.id].room].turn=getOpposite(playerData[socket.id].team);
+				io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard));
+				if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
+					io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
+					games[playerData[socket.id].room].turn="blank";
+				}
+				else if(fullBoardCheck(games[playerData[socket.id].room].gameBoard)){
+					io.to(playerData[socket.id].room).emit("fullGameBoard");
+					games[playerData[socket.id].room].turn="blank";
+				}
 			}
 			else{
 				errorFunction("This square is already occupied");

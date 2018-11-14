@@ -1,5 +1,12 @@
 var socket = io();
+socket.on("fullGameBoard", function() {
+	$("#boardError").html("The board has been filled up, it is a draw");
 
+});
+socket.on("gameWon", function(winningTeam) {
+	let wonMessage="Team "+winningTeam+" has won the game";
+	$("#boardError").html(wonMessage);
+});
 socket.on("updateGames", function(games) {
 	console.log(games);
 	$("#games").html(games);
@@ -9,6 +16,7 @@ socket.on("updateGames", function(games) {
 				$("#gameError").html("");
 				$("#lobby").hide();
 				$("#game").show();
+				$("#boardError").html("");
 			}
 			else{
 				$("#gameError").html("Lobby is full");
@@ -64,6 +72,7 @@ function startItAll() {
 		socket.emit("newGame",$("#gameBoardSize").val());
 		$("#lobby").hide();
 		$("#game").show();
+		$("#boardError").html("");
 	});
 	$("#leaveGameButton").click(function(){
 		$("#lobby").show();
