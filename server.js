@@ -17,6 +17,16 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
+var shopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
+	'item1': 2,
+	'item2': 2,
+	'item3': 3,
+	'item4': 2,
+	'item5': 2,
+	'item6': 3,
+	'item7': 5
+}];
+
 app.use(express.static("pub"));
 function getOpposite(piece){
 	if(piece==='o'){
@@ -27,6 +37,19 @@ function getOpposite(piece){
 	}
 	return 'blank';
 }
+function buildTable(shopItems){
+	var table = document.createElement('table');
+	var thead = document.createElement('thead');
+	var tbody = document.createElement('tbody');
+
+	var theadTr = document.createElement('tr');
+	for(var i = 0; i < shopItems.length; i++) {
+		var theadTh = document.createElement('th');
+		theadTh.innerHTML = shopitems[i];
+		
+	}
+}
+
 function winCheck(gameBoard,piece){
 	let n=gameBoard.length;
 	for(i=0;i<n;i++){
@@ -191,6 +214,9 @@ io.on("connection", function(socket) {
 	});
 	socket.on("joinedLobby",function(){
 		io.to('lobby').emit("updateGames",getGamesHtml());
+	});
+	socket.on("shopMenu",function(){
+		
 	});
 	socket.on("joinGame",function(gameName,successFunction){
 		console.log(io.sockets.adapter.rooms[gameName].sockets.length);

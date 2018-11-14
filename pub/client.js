@@ -42,6 +42,7 @@ socket.on("updateGameBoard",function(gameBoard){
 function startItAll() {
 	$("#lobby").hide();
 	$("#game").hide();
+	$("#shop").hide();
 	$("#loginButton").click(function() {
 		socket.emit("login", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
 			if(!success){
@@ -67,6 +68,11 @@ function startItAll() {
 				socket.emit("joinedLobby");
 			}
 		});
+	});
+	$("#shopButton").click(function(){
+		//socket.emit("newGame",$("#gameBoardSize").val());
+		$("#lobby").hide();
+		$("#shop").show();
 	});
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val());
