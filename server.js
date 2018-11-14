@@ -17,6 +17,10 @@ var io = socketio(server);
 var loginInfo;
 var playerData=[];
 var games=[];
+var shopItems=[
+	
+];
+
 app.use(express.static("pub"));
 function getOpposite(piece){
 	if(piece){
