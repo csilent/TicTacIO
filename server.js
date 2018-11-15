@@ -88,13 +88,9 @@ function winCheck(gameBoard,piece){
 	}
 	if(gameBoard[0][n-1]===piece){
 		let win=true;
-		for(i=0;i<n-1;i++){
-			let a=i+1
+		for(i=1;i<n;i++){
 			let b=(n-(1+i));
-			let msg="Checking "+a+":"+b;
-			console.log(msg)
-			win=win&&(gameBoard[i+1][n-i]===piece);
-			console.log(win);
+			win=win&&(gameBoard[i][b]===piece);
 		}
 		if(win){
 			return true;
@@ -117,13 +113,14 @@ function joinMainLobby(socket,userName){
 	socket.join('lobby');
 }
 function getGamesHtml(){
-	console.log(games);
-	var ret="<table>";
+	let count=0;
+	let ret="<table>";
 	for(var game in games){
+		count++;
 		ret+="<tr><th>"+games[game].name+"</th></tr>"
 	}
 	ret+="</table>";
-	return ret;
+	return count===0 ? "There are currently no games to join":ret;
 }
 function getPlayersHtml(room){
 	var clients = io.sockets.adapter.rooms[room].sockets;  
@@ -134,13 +131,18 @@ function getPlayersHtml(room){
 	ret+="</table>";
 	return ret;
 }
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
 function getNumPlayers(room){
-	var clients = io.sockets.adapter.rooms[room].sockets;  
-	let ret=0;
-	for(var clientId in clients ){
-		ret++;
+	if(isEmpty(io.sockets.adapter.rooms[room])){
+		return 0;
 	}
-	return ret;
+	return io.sockets.adapter.rooms[room].length;
 }
 function getGameBoardHtml(gameBoard){
 	var ret="<table>";
@@ -170,8 +172,23 @@ io.on("connection", function(socket) {
 	socket.join('preLobby');
 	socket.on("disconnect", function() {
 		console.log("Somebody disconnected.");
-		socket.leaveAll();
-		delete playerData[socket.id];
+		if(socket.id in playerData){
+			let room=playerData[socket.id].room;
+			if(room!='lobby'){
+				if(getNumPlayers(room)<1){
+					delete games[room];
+					io.to('lobby').emit("updateGames",getGamesHtml());
+				}
+			}
+			socket.leaveAll();
+			if(getNumPlayers(room)>=1){
+				io.to(room).emit("updatePlayers",getPlayersHtml(room));
+			}
+			delete playerData[socket.id];
+		}
+		else{
+			socket.leaveAll();
+		}
 	});
 	socket.on("login", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
@@ -204,7 +221,6 @@ io.on("connection", function(socket) {
 		}
 		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize),turn:firstTeam};
 		let roomString=playerData[socket.id].name;
-		console.log(roomString);
 		playerData[socket.id].room=roomString;
 		socket.join(roomString);
 		io.to('lobby').emit("updateGames",getGamesHtml());
@@ -222,7 +238,6 @@ io.on("connection", function(socket) {
 		buildShopTable();
 	});
 	socket.on("joinGame",function(gameName,successFunction){
-		console.log(io.sockets.adapter.rooms[gameName].sockets.length);
 		if(getNumPlayers(gameName)<2){
 			socket.leaveAll();
 			socket.join(gameName);
@@ -253,6 +268,10 @@ io.on("connection", function(socket) {
 	});
 	socket.on("getPlayers",function(setHtml){
 		setHtml(getPlayersHtml(playerData[socket.id].room));
+	});
+	socket.on("sendChat", function(textMessageFromClient) {
+		var s = new Date();
+		io.emit("sayAll", s.getHours() + ":" +  s.getMinutes() + ":" + s.getSeconds() + " " + playerData[socket.id].name + " >  " + textMessageFromClient);
 	});
 	socket.on("placePiece",function(x,y,errorFunction){
 		console.log("Placing piece at "+x+":"+y);
@@ -289,4 +308,3 @@ client.connect(function(err) {
 		});
 	}
 });
-
