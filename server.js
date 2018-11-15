@@ -110,7 +110,6 @@ function joinMainLobby(socket,userName){
 	socket.join('lobby');
 }
 function getGamesHtml(){
-	console.log(games);
 	var ret="<table>";
 	for(var game in games){
 		ret+="<tr><th>"+games[game].name+"</th></tr>"
@@ -127,13 +126,18 @@ function getPlayersHtml(room){
 	ret+="</table>";
 	return ret;
 }
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
 function getNumPlayers(room){
-	var clients = io.sockets.adapter.rooms[room].sockets;  
-	let ret=0;
-	for(var clientId in clients ){
-		ret++;
+	if(isEmpty(io.sockets.adapter.rooms[room])){
+		return 0;
 	}
-	return ret;
+	return io.sockets.adapter.rooms[room].length;
 }
 function getGameBoardHtml(gameBoard){
 	var ret="<table>";
@@ -163,8 +167,23 @@ io.on("connection", function(socket) {
 	socket.join('preLobby');
 	socket.on("disconnect", function() {
 		console.log("Somebody disconnected.");
-		socket.leaveAll();
-		delete playerData[socket.id];
+		if(socket.id in playerData){
+			let room=playerData[socket.id].room;
+			if(room!='lobby'){
+				if(getNumPlayers(room)<1){
+					delete games[room];
+					io.to('lobby').emit("updateGames",getGamesHtml());
+				}
+			}
+			socket.leaveAll();
+			if(getNumPlayers(room)>=1){
+				io.to(room).emit("updatePlayers",getPlayersHtml(room));
+			}
+			delete playerData[socket.id];
+		}
+		else{
+			socket.leaveAll();
+		}
 	});
 	socket.on("login", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
