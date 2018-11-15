@@ -110,12 +110,14 @@ function joinMainLobby(socket,userName){
 	socket.join('lobby');
 }
 function getGamesHtml(){
-	var ret="<table>";
+	let count=0;
+	let ret="<table>";
 	for(var game in games){
+		count++;
 		ret+="<tr><th>"+games[game].name+"</th></tr>"
 	}
 	ret+="</table>";
-	return ret;
+	return count===0 ? "There are currently no games to join":ret;
 }
 function getPlayersHtml(room){
 	var clients = io.sockets.adapter.rooms[room].sockets;  
@@ -216,7 +218,6 @@ io.on("connection", function(socket) {
 		}
 		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize),turn:firstTeam};
 		let roomString=playerData[socket.id].name;
-		console.log(roomString);
 		playerData[socket.id].room=roomString;
 		socket.join(roomString);
 		io.to('lobby').emit("updateGames",getGamesHtml());
@@ -234,7 +235,6 @@ io.on("connection", function(socket) {
 		
 	});
 	socket.on("joinGame",function(gameName,successFunction){
-		console.log(io.sockets.adapter.rooms[gameName].sockets.length);
 		if(getNumPlayers(gameName)<2){
 			socket.leaveAll();
 			socket.join(gameName);
@@ -265,6 +265,10 @@ io.on("connection", function(socket) {
 	});
 	socket.on("getPlayers",function(setHtml){
 		setHtml(getPlayersHtml(playerData[socket.id].room));
+	});
+	socket.on("sendChat", function(textMessageFromClient) {
+		var s = new Date();
+		io.emit("sayAll", s.getHours() + ":" +  s.getMinutes() + ":" + s.getSeconds() + " " + playerData[socket.id].name + " >  " + textMessageFromClient);
 	});
 	socket.on("placePiece",function(x,y,errorFunction){
 		console.log("Placing piece at "+x+":"+y);

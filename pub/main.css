@@ -4,3 +4,12 @@ table,th,td{
 .gameTile{
     width:150px;
 }
+textarea {
+    resize: none;
+    width: 100%;
+}
+
+#chatWindow {
+    height: 100px;
+    width:50%;
+}

@@ -8,7 +8,6 @@ socket.on("gameWon", function(winningTeam) {
 	$("#boardError").html(wonMessage);
 });
 socket.on("updateGames", function(games) {
-	console.log(games);
 	$("#games").html(games);
 	$("#games tr").click(function() {
 		socket.emit("joinGame",$(this).text(),function(success){
@@ -25,24 +24,26 @@ socket.on("updateGames", function(games) {
 	});
 });
 socket.on("updatePlayers",function(players){
-	console.log(players);
 	$("#players").html(players);
 });
 socket.on("updateGameBoard",function(gameBoard){
-	console.log(gameBoard);
 	$("#gameBoard").html(gameBoard);
 	$("#gameBoard td").click(function() {
 		socket.emit("placePiece",$(this).parent().index(),$(this).index(),function(errorMsg){
 			$("#boardError").html(errorMsg);
 		});
 	});
-
+});
+socket.on("sayAll", function(dataFromServer) {
+	$("#chatWindow").append(dataFromServer+"\n");
+	$("#chatWindow").scrollTop($("#chatWindow")[0].scrollHeight)
 });
 
 function startItAll() {
 	$("#lobby").hide();
 	$("#game").hide();
 	$("#shop").hide();
+	$("#chat").hide();
 	$("#loginButton").click(function() {
 		socket.emit("login", {userName:$("#userText").val(),password:$("#passwordText").val()},function(success){
 			if(!success){
@@ -52,6 +53,7 @@ function startItAll() {
 				$("#error").html("");
 				$("#login").hide();
 				$("#lobby").show();
+				$("#chat").show();
 				socket.emit("joinedLobby");
 			}
 		});
@@ -85,5 +87,22 @@ function startItAll() {
 		$("#game").hide();
 		socket.emit("leaveGame");
 	});
+	$("#chatButton").click(function() {
+		socket.emit("sendChat", $("#message").val());
+		$("#message").val("");
+	});
+	$("#message").keydown(function(event) {
+		if (event.which == 13) {
+			socket.emit("sendChat", $("#message").val());
+			$("#message").val("");
+		}
+	});
+	$("#chatWindow").keypress(function(event) {
+		event.preventDefault();
+	});
+	$("#chatWindow").keydown(function(event) {
+		event.preventDefault();
+	});
+
 }
 $(startItAll);
