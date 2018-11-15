@@ -24,7 +24,9 @@ var shopItems=[{		// 1st elem are the actual items. numbers are pts required to 
 	'item4': 2,
 	'item5': 2,
 	'item6': 3,
-	'item7': 5
+	'item7': 5,
+	'item8': 3,
+	'item9': 4
 }];
 
 app.use(express.static("pub"));
@@ -37,17 +39,18 @@ function getOpposite(piece){
 	}
 	return 'blank';
 }
-function buildTable(shopItems){
-	var table = document.createElement('table');
-	var thead = document.createElement('thead');
-	var tbody = document.createElement('tbody');
 
-	var theadTr = document.createElement('tr');
-	for(var i = 0; i < shopItems.length; i++) {
-		var theadTh = document.createElement('th');
-		theadTh.innerHTML = shopitems[i];
-		
+function buildShopTable(){	// IDK how to link to client?? -- Create shop table with 'shopItems' 
+	var table = document.createElement("table");	// document is undefined
+	var i = 0;
+	for(var r=0;r<3;r++){
+		var row = table.insertRow(-1);
+		for(c=0;c<3;c++){
+			var col = row.insertCell(-1);
+			col.appendChild(document.createTextNode(shopItems[i++]));
+		}
 	}
+	document.body.appendChild(table);
 }
 
 function winCheck(gameBoard,piece){
@@ -216,7 +219,7 @@ io.on("connection", function(socket) {
 		io.to('lobby').emit("updateGames",getGamesHtml());
 	});
 	socket.on("shopMenu",function(){
-		
+		buildShopTable();
 	});
 	socket.on("joinGame",function(gameName,successFunction){
 		console.log(io.sockets.adapter.rooms[gameName].sockets.length);

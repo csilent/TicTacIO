@@ -70,7 +70,7 @@ function startItAll() {
 		});
 	});
 	$("#shopButton").click(function(){
-		//socket.emit("newGame",$("#gameBoardSize").val());
+		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
 	});
