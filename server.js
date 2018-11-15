@@ -85,13 +85,9 @@ function winCheck(gameBoard,piece){
 	}
 	if(gameBoard[0][n-1]===piece){
 		let win=true;
-		for(i=0;i<n-1;i++){
-			let a=i+1
+		for(i=1;i<n;i++){
 			let b=(n-(1+i));
-			let msg="Checking "+a+":"+b;
-			console.log(msg)
-			win=win&&(gameBoard[i+1][n-i]===piece);
-			console.log(win);
+			win=win&&(gameBoard[i][b]===piece);
 		}
 		if(win){
 			return true;
@@ -286,4 +282,3 @@ client.connect(function(err) {
 		});
 	}
 });
-
