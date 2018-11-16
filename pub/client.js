@@ -86,7 +86,7 @@ function startItAll() {
 		$("#shop").hide();
 	});
 	$("#newGameButton").click(function(){
-		socket.emit("newGame",$("#gameBoardSize").val());
+		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());
 		$("#lobby").hide();
 		$("#game").show();
 		$("#boardError").html("");

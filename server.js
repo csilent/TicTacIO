@@ -157,12 +157,21 @@ function getNumPlayers(room){
 	}
 	return io.sockets.adapter.rooms[room].length;
 }
-function getGameBoardHtml(gameBoard){
+function getGameBoardHtml(gameBoard,xpic,opic){
 	var ret="<table>";
 	for(i=0;i<gameBoard.length;i++){
 		ret+="<tr>";
 		for(j=0;j<gameBoard.length;j++){
-			ret+="<td> <img src="+gameBoard[i][j]+".png class=\"gameTile\"></td>";
+			if(gameBoard[i][j]==="x"){
+				ret+="<td> <img src=img/"+xpic+".png class=\"gameTile\"></td>";
+			}
+			else if(gameBoard[i][j]==="o"){
+				ret+="<td> <img src=img/"+opic+".png class=\"gameTile\"></td>";
+			}
+			else{
+				ret+="<td> <img src=img/"+gameBoard[i][j]+".png class=\"gameTile\"></td>";
+			}
+
 		}
 		ret+="</tr>";
 	}
@@ -226,13 +235,20 @@ io.on("connection", function(socket) {
 			}
 		});
 	});
-	socket.on("newGame", function(boardSize){
+	socket.on("newGame", function(boardSize,numOfRemoveMoves,numOfDoubleMoves){
 		socket.leaveAll();
 		let firstTeam='x';
 		if(Math.random>.5){
 			firstTeam='o';
 		}
-		games[playerData[socket.id].name]={name:playerData[socket.id].name,gameBoardSize:boardSize,gameBoard:createGameBoard(boardSize),turn:firstTeam};
+		games[playerData[socket.id].name]={
+			name:playerData[socket.id].name,
+			gameBoardSize:boardSize,
+			gameBoard:createGameBoard(boardSize),
+			turn:firstTeam,
+			x:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"x.png"},
+			o:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"o.png"}
+		};
 		let roomString=playerData[socket.id].name;
 		playerData[socket.id].room=roomString;
 		socket.join(roomString);
