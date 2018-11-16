@@ -23,14 +23,22 @@ socket.on("updateGames", function(games) {
 		});
 	});
 });
+socket.on("updateSpecialMoves",function(removeMoves,doubleMoves){
+	$("#xmoves").html(removeMoves);
+	$("#omoves").html(doubleMoves);
+});
 socket.on("updatePlayers",function(players){
 	$("#players").html(players);
 });
 socket.on("updateGameBoard",function(gameBoard){
 	$("#gameBoard").html(gameBoard);
 	$("#gameBoard td").click(function() {
-		socket.emit("placePiece",$(this).parent().index(),$(this).index(),function(errorMsg){
-			$("#boardError").html(errorMsg);
+		let x=$(this).parent().index();
+		let y=$(this).index();
+		socket.emit("getMoveType",function(moveType){
+			socket.emit(moveType,x,y,function(errorMsg){
+				$("#boardError").html(errorMsg);
+			});
 		});
 	});
 });
@@ -95,6 +103,15 @@ function startItAll() {
 		$("#lobby").show();
 		$("#game").hide();
 		socket.emit("leaveGame");
+	});
+	$("#doubleMoveButton").click(function(){
+		socket.emit("changeMoveType","doubleMove");
+	});	
+	$("#removeMoveButton").click(function(){
+		socket.emit("changeMoveType","removeMove");
+	});	
+	$("#normalMoveButton").click(function(){
+		socket.emit("changeMoveType","putPiece");
 	});
 	$("#chatButton").click(function() {
 		socket.emit("sendChat", $("#message").val());
