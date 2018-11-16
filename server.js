@@ -27,7 +27,7 @@ var io = socketio(secureServer);
 var loginInfo;
 var playerData=[];
 var games=[];
-var shopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
+var xShopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
 	'cat.jpg': 2,
 	'dog.jpg': 2,
 	'flower.jpeg': 3,
@@ -37,6 +37,17 @@ var shopItems=[{		// 1st elem are the actual items. numbers are pts required to 
 	'mountain.jpg': 5,
 	'rocket.png': 3,
 	'space.jpg': 4
+}];
+var oShopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
+	'soccer.': 2,
+	'baseball.jpg': 2,
+	'donkeykong.jpg': 3,
+	'firefighter.jpg': 2,
+	'fredflintstone.jpg': 2,
+	'luigi.jpg': 3,
+	'mario.jpg': 5,
+	'volcano.jpg': 3,
+	'wolverine.jpg': 4
 }];
 
 app.use(function(req, res, next) {
