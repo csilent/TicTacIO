@@ -18,15 +18,15 @@ var loginInfo;
 var playerData=[];
 var games=[];
 var shopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
-	'item1': 2,
-	'item2': 2,
-	'item3': 3,
-	'item4': 2,
-	'item5': 2,
-	'item6': 3,
-	'item7': 5,
-	'item8': 3,
-	'item9': 4
+	'cat.jpg': 2,
+	'dog.jpg': 2,
+	'flower.jpeg': 3,
+	'gozilla.jpg': 2,
+	'jarjar.jpg': 2,
+	'masterChief.jpg': 3,
+	'mountain.jpg': 5,
+	'rocket.png': 3,
+	'space.jpg': 4
 }];
 
 app.use(express.static("pub"));
@@ -40,7 +40,7 @@ function getOpposite(piece){
 	return 'blank';
 }
 
-function buildShopTable(){	// IDK how to link to client?? -- Create shop table with 'shopItems' 
+function buildShopTable(){	 
 	var table = document.createElement("table");	// document is undefined
 	var i = 0;
 	for(var r=0;r<3;r++){
@@ -51,6 +51,19 @@ function buildShopTable(){	// IDK how to link to client?? -- Create shop table w
 		}
 	}
 	document.body.appendChild(table);
+}
+
+function buildNewShopTable() {
+	var tmp = "<table>";
+	for(var i = 0; i < 3; i++) {
+		tmp += "<tr>";
+		for(var j = 0; j < 3; j++){
+			tmp += "<td> </td>";
+		}
+		tmp += "</tr>";
+	}
+	tmp += "</table>";
+	return tmp;
 }
 
 function winCheck(gameBoard,piece){
@@ -235,7 +248,16 @@ io.on("connection", function(socket) {
 		io.to('lobby').emit("updateGames",getGamesHtml());
 	});
 	socket.on("shopMenu",function(){
-		buildShopTable();
+		socket.leaveAll();
+		socket.join('shop');
+		playerData[socket.id].room='shop';
+		io.emit("updateShop",buildNewShopTable());
+	});
+	socket.on("leaveShop",function(){
+		socket.leaveAll();
+		socket.join('lobby');
+		playerData[socket.id].room='lobby';
+		io.emit("updateGames",getGamesHtml());
 	});
 	socket.on("joinGame",function(gameName,successFunction){
 		if(getNumPlayers(gameName)<2){
@@ -264,7 +286,7 @@ io.on("connection", function(socket) {
 			io.to(room).emit("updatePlayers",getPlayersHtml(room));
 			playerData[socket.id].room='lobby';
 		}
-		io.to('lobby').emit("updateGames",getGamesHtml());
+		io.emit("updateGames",getGamesHtml());
 	});
 	socket.on("getPlayers",function(setHtml){
 		setHtml(getPlayersHtml(playerData[socket.id].room));

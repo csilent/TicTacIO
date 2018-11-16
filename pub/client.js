@@ -38,6 +38,10 @@ socket.on("sayAll", function(dataFromServer) {
 	$("#chatWindow").append(dataFromServer+"\n");
 	$("#chatWindow").scrollTop($("#chatWindow")[0].scrollHeight)
 });
+socket.on("updateShop",function(shophtml){
+	$("#shopTable").html(shophtml);
+});
+
 
 function startItAll() {
 	$("#lobby").hide();
@@ -75,6 +79,11 @@ function startItAll() {
 		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
+	});
+	$("#leaveShopButton").click(function(){
+		socket.emit("leaveShop");
+		$("#lobby").show();
+		$("#shop").hide();
 	});
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val());
