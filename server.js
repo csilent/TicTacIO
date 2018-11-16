@@ -5,14 +5,24 @@ var ObjectID = mongodb.ObjectID;
 var client = new MongoClient("mongodb://localhost:27017", { useNewUrlParser: true });
 var db;
 
+var fs = require('fs');  //File system stuff
+var key = fs.readFileSync('encryption/myKey.pem'); //sync here means it blocks until the whole file is loaded (unusual for node.js, but ok in this case)
+var cert = fs.readFileSync( 'encryption/myCert.crt' );
+var options = {
+  key: key,
+  cert: cert
+};
+
 //Express setup
 var express = require("express");
 var app = express();
+var https = require("https");
+var secureServer = https.createServer(options, app);
 var http = require("http");
-var server = http.Server(app);
+var insecureServer = http.createServer(app);
 //SocketIO setup
 var socketio = require("socket.io");
-var io = socketio(server);
+var io = socketio(secureServer);
 //Global vars
 var loginInfo;
 var playerData=[];
@@ -28,6 +38,14 @@ var shopItems=[{		// 1st elem are the actual items. numbers are pts required to 
 	'rocket.png': 3,
 	'space.jpg': 4
 }];
+
+app.use(function(req, res, next) {
+    if (req.secure) {
+        next();
+    } else {
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+});
 
 app.use(express.static("pub"));
 function getOpposite(piece){
@@ -341,8 +359,7 @@ client.connect(function(err) {
 	else {
 		db = client.db("TicTacIO");
 		loginInfo=db.collection("loginInfo");
-		server.listen(80, function() {
-			console.log("Server with socket.io is ready.");
-		});
+		secureServer.listen(443, function() {console.log("Secure server is ready.");});
+		insecureServer.listen(80, function() {console.log("Insecure (forwarding) server is ready.");});
 	}
 });
