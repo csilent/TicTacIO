@@ -111,7 +111,7 @@ function startItAll() {
 		socket.emit("changeMoveType","removeMove");
 	});	
 	$("#normalMoveButton").click(function(){
-		socket.emit("changeMoveType","putPiece");
+		socket.emit("changeMoveType","placePiece");
 	});
 	$("#chatButton").click(function() {
 		socket.emit("sendChat", $("#message").val());
