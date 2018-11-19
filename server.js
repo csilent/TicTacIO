@@ -28,26 +28,26 @@ var loginInfo;
 var playerData=[];
 var games=[];
 var xShopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
-	'cat.jpg': 2,
-	'dog.jpg': 2,
-	'flower.jpeg': 3,
-	'gozilla.jpg': 2,
-	'jarjar.jpg': 2,
-	'masterChief.jpg': 3,
-	'mountain.jpg': 5,
-	'rocket.png': 3,
-	'space.jpg': 4
+	'img/xImg/cat.jpg' : 2,
+	'img/xImg/dog.jpg': 2,
+	'img/xImg/flower.jpeg': 3,
+	'img/xImg/gozilla.jpg': 2,
+	'img/xImg/jarjar.jpg': 2,
+	'img/xImg/masterChief.jpg': 3,
+	'img/xImg/mountain.jpg': 5,
+	'img/xImg/rocket.png': 3,
+	'img/xImg/space.jpg': 4
 }];
-var oShopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
-	'soccer.': 2,
-	'baseball.jpg': 2,
-	'donkeykong.jpg': 3,
-	'firefighter.jpg': 2,
-	'fredflintstone.jpg': 2,
-	'luigi.jpg': 3,
-	'mario.jpg': 5,
-	'volcano.jpg': 3,
-	'wolverine.jpg': 4
+var oShopItems=[{		// 1st elem are the items. numbers are pts required to buy..
+	'img/oImg/soccer.jpg': 2,
+	'img/oImg/baseball.jpg': 2,
+	'img/oImg/donkeykong.jpg': 3,
+	'img/oImg/firefighter.jpg': 2,
+	'img/oImg/fredflintstone.jpg': 2,
+	'img/oImg/luigi.jpg': 3,
+	'img/oImg/mario.jpg': 5,
+	'img/oImg/volcano.jpg': 3,
+	'img/oImg/wolverine.jpg': 4
 }];
 
 app.use(function(req, res, next) {
@@ -70,7 +70,7 @@ function getOpposite(piece){
 }
 
 function buildShopTable(){	 
-	var table = document.createElement("table");	// document is undefined
+	var table = document.createElement("table");	
 	var i = 0;
 	for(var r=0;r<3;r++){
 		var row = table.insertRow(-1);
@@ -87,7 +87,8 @@ function buildNewShopTable() {
 	for(var i = 0; i < 3; i++) {
 		tmp += "<tr>";
 		for(var j = 0; j < 3; j++){
-			tmp += "<td> </td>";
+			
+				tmp += "<td><img src="+xShopItems+" class=\"gameTile\"> </td>";
 		}
 		tmp += "</tr>";
 	}
