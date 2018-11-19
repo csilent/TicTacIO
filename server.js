@@ -68,7 +68,14 @@ function getOpposite(piece){
 	}
 	return 'blank';
 }
-
+function hashString(str){
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash += Math.pow(str.charCodeAt(i) * 31, str.length - i);
+		hash = hash & hash;
+	}
+	return hash;
+}
 function buildShopTable(){	 
 	var table = document.createElement("table");	
 	var i = 0;
@@ -250,7 +257,7 @@ io.on("connection", function(socket) {
 	});
 	socket.on("login", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
-			if(result.length>0&&result[0].password===dataFromClient.password){
+			if(result.length>0&&result[0].password===hashString(dataFromClient.password)){
 				joinMainLobby(socket,dataFromClient.userName);
 				successFunction(true);
 			}else{
@@ -262,7 +269,7 @@ io.on("connection", function(socket) {
 	socket.on("newUser", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
 			if(result.length==0){
-				loginInfo.insertOne({userName:dataFromClient.userName,password:dataFromClient.password});
+				loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password)});
 				joinMainLobby(socket,dataFromClient.userName);
 				successFunction(true);
 			}else{
@@ -291,14 +298,16 @@ io.on("connection", function(socket) {
 		io.to('lobby').emit("updateGames",getGamesHtml());
 		io.to(roomString).emit("updatePlayers",getPlayersHtml(roomString));
 		io.to(roomString).emit("updateGameBoard",getGameBoardHtml(games[roomString].gameBoard,games[roomString].x.picture,games[roomString].o.picture));
-		io.to(roomString).emit("updateSpecialMoves",getMovesHtml(games[playerData[socket.id].name].x,"x"),getMovesHtml(games[playerData[socket.id].name].o,"o"));
+		io.to(roomString).emit("updateSpecialMoves",getMovesHtml(games[roomString].x,"x"),getMovesHtml(games[roomString].o,"o"));
 		playerData[socket.id].team='o';
 	});
 	socket.on("getMoveType",function(getMove){
 		if(playerData[socket.id].team==="o"){
+			console.log(games[playerData[socket.id].room].o.currentMove);
 			getMove(games[playerData[socket.id].room].o.currentMove);
 		}
 		else if(playerData[socket.id].team==="x"){
+			console.log(games[playerData[socket.id].room].x.currentMove);
 			getMove(games[playerData[socket.id].room].x.currentMove);
 		}
 	});
@@ -334,6 +343,95 @@ io.on("connection", function(socket) {
 			errorFunction("It is not your turn");
 		}
 	});
+	socket.on("removeMove",function(x,y,errorFunction){
+		console.log("Removing piece at "+x+":"+y);
+		let removeMovesCount=0;
+		if(playerData[socket.id].team==="o"){
+			removeMovesCount= games[playerData[socket.id].room].o.removeMoves;
+		}
+		else if(playerData[socket.id].team==="x"){
+			removeMovesCount=games[playerData[socket.id].room].x.removeMoves;
+		}
+		if(games[playerData[socket.id].room].turn===playerData[socket.id].team){
+			if(removeMovesCount>0){
+				if(games[playerData[socket.id].room].gameBoard[x][y]===getOpposite(playerData[socket.id].team)){
+					games[playerData[socket.id].room].gameBoard[x][y]="blank";
+					games[playerData[socket.id].room].turn=getOpposite(playerData[socket.id].team);
+					io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard,games[playerData[socket.id].room].x.picture,games[playerData[socket.id].room].o.picture));
+					if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
+						io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
+						games[playerData[socket.id].room].turn="blank";
+					}
+					else if(fullBoardCheck(games[playerData[socket.id].room].gameBoard)){
+						io.to(playerData[socket.id].room).emit("fullGameBoard");
+						games[playerData[socket.id].room].turn="blank";
+					}
+					if(playerData[socket.id].team==="o"){
+						games[playerData[socket.id].room].o.removeMoves--;
+						games[playerData[socket.id].room].o.currentMove="placePiece";
+					}
+					else if(playerData[socket.id].team==="x"){
+						games[playerData[socket.id].room].x.removeMoves--;
+						games[playerData[socket.id].room].x.currentMove="placePiece";
+					}
+					io.to(playerData[socket.id].room).emit("updateSpecialMoves",getMovesHtml(games[playerData[socket.id].room].x,"x"),getMovesHtml(games[playerData[socket.id].room].o,"o"));
+				}
+				else{
+					errorFunction("Must remove an piece from the opposite team");
+				}
+			}
+			else{
+				errorFunction("Not enough remove moves left");
+			}
+		}
+		else{
+			errorFunction("It is not your turn");
+		}
+	});
+	socket.on("doubleMove",function(x,y,errorFunction){
+		let doubleMovesCount=0;
+		if(playerData[socket.id].team==="o"){
+			doubleMovesCount= games[playerData[socket.id].room].o.doubleMoves;
+		}
+		else if(playerData[socket.id].team==="x"){
+			doubleMovesCount=games[playerData[socket.id].room].x.doubleMoves;
+		}
+		console.log("Double move at "+x+":"+y);
+		if(games[playerData[socket.id].room].turn===playerData[socket.id].team){
+			if(doubleMovesCount>0){
+				if(games[playerData[socket.id].room].gameBoard[x][y]==="blank"){
+					games[playerData[socket.id].room].gameBoard[x][y]=playerData[socket.id].team;
+					io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard,games[playerData[socket.id].room].x.picture,games[playerData[socket.id].room].o.picture));
+					if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
+						io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
+						games[playerData[socket.id].room].turn="blank";
+					}
+					else if(fullBoardCheck(games[playerData[socket.id].room].gameBoard)){
+						io.to(playerData[socket.id].room).emit("fullGameBoard");
+						games[playerData[socket.id].room].turn="blank";
+					}
+					if(playerData[socket.id].team==="o"){
+						games[playerData[socket.id].room].o.doubleMoves--;
+						games[playerData[socket.id].room].o.currentMove="placePiece";
+					}
+					else if(playerData[socket.id].team==="x"){
+						games[playerData[socket.id].room].x.doubleMoves--;
+						games[playerData[socket.id].room].x.currentMove="placePiece";
+					}
+					io.to(playerData[socket.id].room).emit("updateSpecialMoves",getMovesHtml(games[playerData[socket.id].room].x,"x"),getMovesHtml(games[playerData[socket.id].room].o,"o"));
+				}
+				else{
+					errorFunction("This square is already occupied");
+				}
+			}
+			else{
+				errorFunction("Not enough double moves left");
+			}
+		}
+		else{
+			errorFunction("It is not your turn");
+		}
+	});
 	socket.on("getGames",function(setHtml){
 		setHtml(getGamesHtml());
 	});
@@ -360,6 +458,7 @@ io.on("connection", function(socket) {
 			io.to(gameName).emit("updatePlayers",getPlayersHtml(gameName));
 			io.to(gameName).emit("updateGameBoard",getGameBoardHtml(games[gameName].gameBoard,games[gameName].x.picture,games[gameName].o.picture));
 			playerData[socket.id].team='x';
+			io.to(gameName).emit("updateSpecialMoves",getMovesHtml(games[gameName].x,"x"),getMovesHtml(games[gameName].o,"o"));
 			successFunction(true);
 		}
 		else{
