@@ -13,3 +13,9 @@ textarea {
     height: 100px;
     width:50%;
 }
+
+
+.shopTable .ui-selecting { background: #FECA40; }
+.shopTable .ui-selected { background: #F39814; color: white; }
+.shopTable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+.shopTable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }

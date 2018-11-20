@@ -49,6 +49,9 @@ socket.on("sayAll", function(dataFromServer) {
 socket.on("updateShop",function(shophtml){
 	$("#shopTable").html(shophtml);
 });
+socket.on("updateItemSelection",function(){	// for Selection
+	$("#shopTable").selectable();
+});
 
 
 function startItAll() {
@@ -83,7 +86,7 @@ function startItAll() {
 			}
 		});
 	});
-	$("#shopButton").click(function(){
+	$("#shopButton").click(function(n){	// Displays xShopItems by default.
 		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
@@ -93,6 +96,17 @@ function startItAll() {
 		$("#lobby").show();
 		$("#shop").hide();
 	});
+	$("#oShopButton").click(function(){	// Display oShopItems. 'Refactor'
+		socket.emit("oshopMenu");
+		$("#lobby").hide();
+		$("#shop").show();
+	});
+	$("#xShopButton").click(function(){	// Display xShopItems. 'Refactor'
+		socket.emit("shopMenu");
+		$("#lobby").hide();
+		$("#shop").show();
+	});
+
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());
 		$("#lobby").hide();

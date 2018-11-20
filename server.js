@@ -27,28 +27,29 @@ var io = socketio(secureServer);
 var loginInfo;
 var playerData=[];
 var games=[];
-var xShopItems=[{		// 1st elem are the actual items. numbers are pts required to buy..
-	'img/xImg/cat.jpg' : 2,
-	'img/xImg/dog.jpg': 2,
-	'img/xImg/flower.jpeg': 3,
-	'img/xImg/gozilla.jpg': 2,
-	'img/xImg/jarjar.jpg': 2,
-	'img/xImg/masterChief.jpg': 3,
-	'img/xImg/mountain.jpg': 5,
-	'img/xImg/rocket.png': 3,
-	'img/xImg/space.jpg': 4
-}];
-var oShopItems=[{		// 1st elem are the items. numbers are pts required to buy..
-	'img/oImg/soccer.jpg': 2,
-	'img/oImg/baseball.jpg': 2,
-	'img/oImg/donkeykong.jpg': 3,
-	'img/oImg/firefighter.jpg': 2,
-	'img/oImg/fredflintstone.jpg': 2,
-	'img/oImg/luigi.jpg': 3,
-	'img/oImg/mario.jpg': 5,
-	'img/oImg/volcano.jpg': 3,
-	'img/oImg/wolverine.jpg': 4
-}];
+var shopTileSwitch = 0;
+var xShopItems=[		// 1st elem are the actual items. numbers are pts required to buy..
+	{img:'img/xImg/cat.jpg', pts: 2},
+	{img:'img/xImg/dog.jpg', pts: 2},
+	{img:'img/xImg/flower.jpeg', pts: 3},
+	{img:'img/xImg/godzilla.jpg', pts: 2},
+	{img:'img/xImg/jarjar.jpg', pts: 2},
+	{img:'img/xImg/masterChief.jpg', pts: 3},
+	{img:'img/xImg/mountain.jpg', pts: 5},
+	{img:'img/xImg/rocket.png', pts: 3},
+	{img:'img/xImg/space.jpg', pts: 4}
+];
+var oShopItems=[		// 1st elem are the items. numbers are pts required to buy..
+	{img:'img/oImg/soccer.jpg', pts: 2},
+	{img:'img/oImg/baseball.jpg', pts: 2},
+	{img:'img/oImg/donkeykong.jpg', pts: 3},
+	{img:'img/oImg/firefighter.jpg', pts: 2},
+	{img:'img/oImg/fredflintstone.jpg', pts: 2},
+	{img:'img/oImg/luigi.jpg', pts: 3},
+	{img:'img/oImg/mario.jpg', pts: 5},
+	{img:'img/oImg/volcano.jpg', pts: 3},
+	{img:'img/oImg/wolverine.jpg', pts: 4}
+];
 
 app.use(function(req, res, next) {
     if (req.secure) {
@@ -93,14 +94,33 @@ function buildNewShopTable() {
 	var tmp = "<table>";
 	for(var i = 0; i < 3; i++) {
 		tmp += "<tr>";
-		for(var j = 0; j < 3; j++){
-			
-				tmp += "<td><img src="+xShopItems+" class=\"gameTile\"> </td>";
+		for(var j = 0; j < 3; j++) {
+			for(var pic in xShopItems) {
+				tmp += "<td><img src="+xShopItems[pic].img+" class=\"gameTile\", id=\"shopTable\"> <br>"+xShopItems[pic].pts+"</td>";
+			}
 		}
 		tmp += "</tr>";
 	}
 	tmp += "</table>";
 	return tmp;
+}
+
+function buildXshopTable() {
+	var tmpp = "<table><tr>";
+	for(var ting in xShopItems){
+		tmpp += "<td><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br>"+xShopItems[ting].pts+"</td>";
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
+}
+
+function buildOshopTable() {
+	var tmpp = "<table><tr>";
+	for(var ting in oShopItems){
+		tmpp += "<td><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br>"+oShopItems[ting].pts+"</td>";
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
 }
 
 function winCheck(gameBoard,piece){
@@ -442,7 +462,15 @@ io.on("connection", function(socket) {
 		socket.leaveAll();
 		socket.join('shop');
 		playerData[socket.id].room='shop';
-		io.emit("updateShop",buildNewShopTable());
+		io.emit("updateShop",buildXshopTable());
+		//io.emit("updateItemSelection");  // for Selection()
+	});
+	socket.on("oshopMenu",function(){	// 'Refactor' -- Changes items for all users in the shop, not just current.
+		socket.leaveAll();
+		socket.join('shop');
+		playerData[socket.id].room='shop';
+		io.emit("updateShop",buildOshopTable());
+		
 	});
 	socket.on("leaveShop",function(){
 		socket.leaveAll();
