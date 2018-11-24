@@ -86,26 +86,30 @@ function startItAll() {
 			}
 		});
 	});
-	$("#shopButton").click(function(n){	// Displays xShopItems by default.
+	$("#shopButton").click(function(){	// Displays xShopItems by default.
 		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
+		$(function() {
+			$("#shopTable").selectable();
+		});
 	});
 	$("#leaveShopButton").click(function(){
 		socket.emit("leaveShop");
 		$("#lobby").show();
 		$("#shop").hide();
 	});
-	$("#oShopButton").click(function(){	// Display oShopItems. 'Refactor'
-		socket.emit("oshopMenu");
-		$("#lobby").hide();
-		$("#shop").show();
-	});
 	$("#xShopButton").click(function(){	// Display xShopItems. 'Refactor'
 		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
 	});
+	$("#oShopButton").click(function(){	// Display oShopItems. 'Refactor'
+		socket.emit("oshopMenu");
+		$("#lobby").hide();
+		$("#shop").show();
+	});
+	
 
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());

@@ -463,20 +463,22 @@ io.on("connection", function(socket) {
 		socket.join('shop');
 		playerData[socket.id].room='shop';
 		io.emit("updateShop",buildXshopTable());
-		//io.emit("updateItemSelection");  // for Selection()
+		//io.to(`${socket.id}`).emit("updateShop",buildXshopTable());
+		//io.emit("updateItemSelection");  // FIX - item Selection()
 	});
-	socket.on("oshopMenu",function(){	// 'Refactor' -- Changes items for all users in the shop, not just current.
+	socket.on("oshopMenu",function(){
 		socket.leaveAll();
 		socket.join('shop');
 		playerData[socket.id].room='shop';
-		io.emit("updateShop",buildOshopTable());
+		io.emit("updateShop", buildOshopTable());	// 
+		//io.to(`${socket.id}`).emit("updateShop",buildOshopTable());	// FIX - Doesnt send buildOshopTable()
 		
 	});
 	socket.on("leaveShop",function(){
 		socket.leaveAll();
 		socket.join('lobby');
 		playerData[socket.id].room='lobby';
-		io.emit("updateGames",getGamesHtml());
+		io.to("updateGames",getGamesHtml());
 	});
 	socket.on("joinGame",function(gameName,successFunction){
 		if(getNumPlayers(gameName)<2){
