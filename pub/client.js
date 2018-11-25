@@ -110,7 +110,9 @@ function startItAll() {
 		$("#lobby").hide();
 		$("#shop").show();
 	});
-	
+	$("#purchase").click(function(){	// purchase selected tiles.
+		socket.emit("purchaseTiles");
+	});
 
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());
