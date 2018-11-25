@@ -114,6 +114,11 @@ function startItAll() {
 		socket.emit("purchaseTiles");
 	});
 
+	$("#xtable td").click(function(){   //selection
+		$(this).addClass('selected').siblings().removeClass('selected');    
+		var value=$(this).find('td:first').html(); 
+	 });
+
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());
 		$("#lobby").hide();

@@ -46,6 +46,12 @@ Button:hover {
     padding-bottom: 5px;
 }
 
+.selected {
+    background-color: brown;
+    border-color: #FECA40;
+    color: #FFF;
+}
+
 /* #size {
     float: left;
 }
