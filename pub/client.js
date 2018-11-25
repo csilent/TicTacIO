@@ -82,6 +82,7 @@ function startItAll() {
 				$("#error").html("");
 				$("#login").hide();
 				$("#lobby").show();
+				$("#chat").show();
 				socket.emit("joinedLobby");
 			}
 		});

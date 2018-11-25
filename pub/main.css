@@ -1,21 +1,86 @@
 table,th,td{
     border: 2px solid black;
 }
+
 .gameTile{
     width:150px;
 }
+
 textarea {
     resize: none;
     width: 100%;
 }
 
-#chatWindow {
-    height: 100px;
-    width:50%;
+#userText, #passwordText {
+    
+    padding: 6px 15px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
+#loginButton, #newUserButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+}
+Button:hover {
+    opacity: 0.8;
+}
+
+#shopButton{
+    background-color: #4CAF50;
+    color: white;
+    padding: 7px 10px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+}
+
+#gameError {
+    border-bottom: 2px black;
+    padding-bottom: 5px;
+}
+
+/* #size {
+    float: left;
+}
+
+#remove {
+    float: left;
+}
+
+#double {
+    float: left;
+} */
+
+#chatWindow {
+    height: 100px;
+    width:25%;
+    
+}
+
+#login {
+    text-align: center;
+}
+
+/* #lobby {
+    text-align: center;
+} */
+
+h1 {
+    text-decoration: underline;
+}
+
+/* .gameTile {background: #FECA40;} */
+
+td:hover { border-color: #FECA40; }
 
 #shopTable .ui-selecting { background: #FECA40; }
 #shopTable .ui-selected { background: #F39814; color: white; }
-#shopTable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
-#shopTable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }
+#shopTable { list-style-type: none; margin: 0; padding: 0; width: 60%;}
+#shopTable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px;}

@@ -8,13 +8,14 @@
 
 	<body>
 		<div id="login">
+			<h1>Login</h1>
 			Welcome to Tic Tac IO, Please login below or make a new account.
 			<br>
 			Username:
-			<input id="userText" type="text">
+			<input id="userText" type="text" placeholder="Enter Username">
 			<br>
 			Password:
-			<input id="passwordText" type="password">
+			<input id="passwordText" type="password" placeholder="Enter Password">
 			<br>
 			<div id="error"></div>
 			<button type="button" id="loginButton">Login</button>
@@ -24,12 +25,18 @@
 			<h1>Games</h1>
 			<div id="gameError"></div>
 			<div id="games"></div>
-			Game board size
+
+			<div id="size">Game board size<input id="gameBoardSize" type="number"></div>
+			<div id="remove">Remove moves<input id="gameRemoveMoves" type="number"></div>
+			<div id="double">Double moves<input id="gameDoubleMoves" type="number"></div>
+
+			<!--Game board size
 			<input id="gameBoardSize" type="number">
 			Remove Moves
 			<input id="gameRemoveMoves" type="number">
 			Double Moves
 			<input id="gameDoubleMoves" type="number">
+			-->
 
 			<button type="button" id="newGameButton">Create new game</button>
 			<br>
@@ -58,6 +65,7 @@
 			<br>
 			<button type="button" id="leaveGameButton">Leave Game</button>
 		</div>
+
 		<div id="chat">
 			<textarea id="chatWindow"></textarea>
 			<br>

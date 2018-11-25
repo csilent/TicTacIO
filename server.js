@@ -190,7 +190,7 @@ function getGamesHtml(){
 		ret+="<tr><th>"+games[game].name+"</th></tr>"
 	}
 	ret+="</table>";
-	return count===0 ? "There are currently no games to join":ret;
+	return count===0 ? "There are currently no games to join!":ret;
 }
 function getPlayersHtml(room){
 	var clients = io.sockets.adapter.rooms[room].sockets;  
@@ -462,7 +462,8 @@ io.on("connection", function(socket) {
 		socket.leaveAll();
 		socket.join('shop');
 		playerData[socket.id].room='shop';
-		io.emit("updateShop",buildXshopTable());
+		//io.emit("updateShop",buildXshopTable());
+		socket.emit("updateShop",buildXshopTable());
 		//io.to(`${socket.id}`).emit("updateShop",buildXshopTable());
 		//io.emit("updateItemSelection");  // FIX - item Selection()
 	});
@@ -470,7 +471,8 @@ io.on("connection", function(socket) {
 		socket.leaveAll();
 		socket.join('shop');
 		playerData[socket.id].room='shop';
-		io.emit("updateShop", buildOshopTable());	// 
+		//io.emit("updateShop", buildOshopTable());	// 
+		socket.emit("updateShop",buildOshopTable());
 		//io.to(`${socket.id}`).emit("updateShop",buildOshopTable());	// FIX - Doesnt send buildOshopTable()
 		
 	});
