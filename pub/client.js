@@ -49,8 +49,9 @@ socket.on("sayAll", function(dataFromServer) {
 socket.on("updateShop",function(shophtml){
 	$("#shopTable").html(shophtml);
 	$("#xtable td").click(function(){   //selection testing
-		console.log(this);
-		$(this).addClass('selected').siblings().removeClass('selected');  
+		console.log(this.id);
+		$(this).addClass('selected').siblings().removeClass('selected');
+		socket.emit("purchaseTiles", this.id);  //crashes
 	 });
 
 });
