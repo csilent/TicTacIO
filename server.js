@@ -111,7 +111,7 @@ function buildNewShopTable() {
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
-		tmpp += "<td><img src="+xShopItems[ting].img+"> <br>"+xShopItems[ting].pts+"</td>";
+		tmpp += "<td><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br>"+xShopItems[ting].pts+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -120,7 +120,7 @@ function buildXshopTable() {
 function buildOshopTable() {
 	var tmpp = "<table id=\"otable\"><tr>";
 	for(var ting in oShopItems){
-		tmpp += "<td><img src="+oShopItems[ting].img+"> <br>"+oShopItems[ting].pts+"</td>";
+		tmpp += "<td><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br>"+oShopItems[ting].pts+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
