@@ -30,26 +30,26 @@ var playerData=[];
 var games=[];
 var shopTileSwitch = 0;
 var xShopItems=[		// 1st elem are the actual items. numbers are pts required to buy..
-	{id: 1, img:'img/xImg/cat.jpg', pts: 2},
-	{id: 2, img:'img/xImg/dog.jpg', pts: 2},
-	{id: 3, img:'img/xImg/flower.jpeg', pts: 3},
-	{id: 4, img:'img/xImg/godzilla.jpg', pts: 2},
-	{id: 5, img:'img/xImg/jarjar.jpg', pts: 2},
-	{id: 6, img:'img/xImg/masterChief.jpg', pts: 3},
-	{id: 7, img:'img/xImg/mountain.jpg', pts: 5},
-	{id: 8, img:'img/xImg/rocket.png', pts: 3},
-	{id: 9, img:'img/xImg/space.jpg', pts: 4}
+	{id: 0, img:'img/xImg/cat.jpg', pts: 2},
+	{id: 1, img:'img/xImg/dog.jpg', pts: 2},
+	{id: 2, img:'img/xImg/flower.jpeg', pts: 3},
+	{id: 3, img:'img/xImg/godzilla.jpg', pts: 2},
+	{id: 4, img:'img/xImg/jarjar.jpg', pts: 2},
+	{id: 5, img:'img/xImg/masterChief.jpg', pts: 3},
+	{id: 6, img:'img/xImg/mountain.jpg', pts: 5},
+	{id: 7, img:'img/xImg/rocket.png', pts: 3},
+	{id: 8, img:'img/xImg/space.jpg', pts: 4}
 ];
 var oShopItems=[		// 1st elem are the items. numbers are pts required to buy..
-	{id: 1, img:'img/oImg/soccer.jpg', pts: 2},
-	{id: 2, img:'img/oImg/baseball.jpg', pts: 2},
-	{id: 3, img:'img/oImg/donkeykong.jpg', pts: 3},
-	{id: 4, img:'img/oImg/firefighter.jpg', pts: 2},
-	{id: 5, img:'img/oImg/fredflintstone.jpg', pts: 2},
-	{id: 6, img:'img/oImg/luigi.jpg', pts: 3},
-	{id: 7, img:'img/oImg/mario.jpg', pts: 5},
-	{id: 8, img:'img/oImg/volcano.jpg', pts: 3},
-	{id: 9, img:'img/oImg/wolverine.jpg', pts: 4}
+	{id: 0, img:'img/oImg/soccer.jpg', pts: 2},
+	{id: 1, img:'img/oImg/baseball.jpg', pts: 2},
+	{id: 2, img:'img/oImg/donkeykong.jpg', pts: 3},
+	{id: 3, img:'img/oImg/firefighter.jpg', pts: 2},
+	{id: 4, img:'img/oImg/fredflintstone.jpg', pts: 2},
+	{id: 5, img:'img/oImg/luigi.jpg', pts: 3},
+	{id: 6, img:'img/oImg/mario.jpg', pts: 5},
+	{id: 7, img:'img/oImg/volcano.jpg', pts: 3},
+	{id: 8, img:'img/oImg/wolverine.jpg', pts: 4}
 ];
 var purchasedXtiles=[];	// populate this when you query the db collection. Used for building buildPurchasedTable() 
 var purchasedOtiles=[];
@@ -111,7 +111,7 @@ function buildNewShopTable() {
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
-		tmpp += "<td><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br>"+xShopItems[ting].pts+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br>"+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
