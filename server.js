@@ -127,7 +127,9 @@ function buildOshopTable() {
 }
 function buildPurchasedTable() {
 	/* query the usersTiles collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
-	purchasedXtiles = usersTiles.find();	// idk if I can access items like this.
+	
+	
+	
 
 }
 
@@ -479,12 +481,21 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildOshopTable());
 	});
-	socket.on("purchaseTiles",function() {
+	socket.on("purchaseTiles",function(dataFromClient,selectedItem) {	// selectedItem are the items being purchased. store them in db under {purchased}
 		/* purchase selected tile(s). */
-		usersTiles.insertOne(xShopItems[1]);	// What did this insert into the db. - Test
 		// store selected items in usersTiles db collection
-		// remove the purchased tile from remaining available tile options
-		// call buildPurchasedTable() to update purchase table.
+		loginInfo.find({userName:userName}).toArray(function(err, result) {
+			if(result[0].purchased==0) {	// Found the item, dont put it in.
+				// loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"o",currentO:"x"});
+				// remove the purchased tile from remaining available tile options
+				// call buildPurchasedTable() to update purchase table.
+				
+			}
+			else { // did not find, put into purchased.
+				
+				
+			}
+		});
 	});
 	socket.on("leaveShop",function(){
 		socket.leaveAll();
@@ -535,7 +546,7 @@ client.connect(function(err) {
 	else {
 		db = client.db("TicTacIO");
 		loginInfo=db.collection("loginInfo");
-		usersTiles=db.collection("tilePurchases");
+		//usersTiles=db.collection("tilePurchases");
 		secureServer.listen(443, function() {console.log("Secure server is ready.");});
 		insecureServer.listen(80, function() {console.log("Insecure (forwarding) server is ready.");});
 	}
