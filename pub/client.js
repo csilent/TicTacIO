@@ -53,6 +53,11 @@ socket.on("updateShop",function(shophtml){
 		$(this).addClass('selected').siblings().removeClass('selected');
 		socket.emit("purchaseTiles", this.id);  //crashes
 	 });
+	 $("#otable td").click(function(){   //selection testing
+		console.log(this.id);
+		$(this).addClass('selected').siblings().removeClass('selected');
+		socket.emit("purchaseTiles", this.id);  //crashes
+	 });
 
 });
 socket.on("updateItemSelection",function(){	// for Selection
