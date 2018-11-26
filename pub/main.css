@@ -32,7 +32,7 @@ Button:hover {
     opacity: 0.8;
 }
 
-#shopButton{
+#shopButton, #newGameButton{
     background-color: #4CAF50;
     color: white;
     padding: 7px 10px;
@@ -44,6 +44,12 @@ Button:hover {
 #gameError {
     border-bottom: 2px black;
     padding-bottom: 5px;
+}
+
+.selected {
+    background-color: brown;
+    border-color: #FECA40;
+    color: #FFF;
 }
 
 /* #size {
@@ -58,25 +64,23 @@ Button:hover {
     float: left;
 } */
 
-#chatWindow {
+#chatWindow{
     height: 100px;
-    width:25%;
-    
+    width:25%;   
+}
+
+#message{
+    width:20%;   
 }
 
 #login {
     text-align: center;
 }
 
-/* #lobby {
-    text-align: center;
-} */
-
 h1 {
     text-decoration: underline;
 }
 
-/* .gameTile {background: #FECA40;} */
 
 td:hover { border-color: #FECA40; }
 
