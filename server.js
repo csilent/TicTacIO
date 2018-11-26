@@ -28,7 +28,6 @@ var loginInfo;
 var usersTiles;
 var playerData=[];
 var games=[];
-var shopTileSwitch = 0;
 var xShopItems=[		// 1st elem are the actual items. numbers are pts required to buy..
 	{id: 1, img:'img/xImg/cat.jpg', pts: 2},
 	{id: 2, img:'img/xImg/dog.jpg', pts: 2},
@@ -502,18 +501,18 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildOshopTable());
 	});
-	socket.on("purchaseTiles",function(dataFromClient,selectedItem) {	// selectedItem are the items being purchased. store them in db under {purchased}
+	socket.on("purchaseTiles",function(selectedItem) {	// selectedItem are the items being purchased. store them in db under {purchased}
 		/* purchase selected tile(s). */
 		// store selected items in usersTiles db collection
-		loginInfo.find({userName:userName}).toArray(function(err, result) {
+		loginInfo.find({userName:playerData[socket.id]}).toArray(function(err, result) {
 			if(result[0].purchased==0) {	// Found the item, dont put it in.
 				// loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"o",currentO:"x"});
 				// remove the purchased tile from remaining available tile options
 				// call buildPurchasedTable() to update purchase table.
 				
 			}
-			else { // did not find, put into purchased.
-				
+			else {
+				loginInfo.update({userName:playerData[socket.id]}, {$push: {purchased:selectedItem}});
 				
 			}
 		});
