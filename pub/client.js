@@ -48,11 +48,15 @@ socket.on("sayAll", function(dataFromServer) {
 });
 socket.on("updateShop",function(shophtml){
 	$("#shopTable").html(shophtml);
+	$("#xtable td").click(function(){   //selection testing
+		console.log(this);
+		$(this).addClass('selected').siblings().removeClass('selected');  
+	 });
+
 });
 socket.on("updateItemSelection",function(){	// for Selection
 	$("#shopTable").selectable();
 });
-
 
 function startItAll() {
 	$("#lobby").hide();
@@ -113,10 +117,6 @@ function startItAll() {
 	$("#purchase").click(function(){	// purchase selected tiles.
 		socket.emit("purchaseTiles");
 	});
-
-	$("#xtable td").click(function(){   //selection
-		$(this).addClass('selected').siblings().removeClass('selected');    
-	 });
 
 	$("#newGameButton").click(function(){
 		socket.emit("newGame",$("#gameBoardSize").val(),$("#gameRemoveMoves").val(),$("#gameDoubleMoves").val());
