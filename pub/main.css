@@ -32,8 +32,8 @@ Button:hover {
     opacity: 0.8;
 }
 
-#shopButton, #newGameButton{
-    background-color: #4CAF50;
+#shopButton, #newGameButton, #xShopButton, #oShopButton, #purchase, #leaveShopButton, #leaveGameButton, #doubleMoveButton, #removeMoveButton, #normalMoveButton {
+    background-color: rgb(45, 91, 175);
     color: white;
     padding: 7px 10px;
     margin: 8px 0;
@@ -76,8 +76,17 @@ Button:hover {
     text-align: center;
 }
 
-h1 {
+h1, h2 {
     text-decoration: underline;
+}
+
+#game h1 {
+    text-align: center;
+}
+
+#xmoves {
+    float: left;
+    margin-right: 30px;
 }
 
 
