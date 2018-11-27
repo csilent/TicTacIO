@@ -132,7 +132,19 @@ function buildPurchasedTable() {
 	
 
 }
-
+function changeGold(user,amount){
+	loginInfo.find({userName:user}).toArray(function(err, result) {
+		if(result.length>0){
+			if(result[0].gold!=undefined){
+				let goldAmount=0;
+				goldAmount=result[0].gold;
+				goldAmount+=amount;
+				loginInfo.updateOne({userName:user},{ $set: {gold:goldAmount}},function(err, result) {
+				});
+			}
+		}
+	});
+}
 function winCheck(gameBoard,piece){
 	let n=gameBoard.length;
 	for(i=0;i<n;i++){
@@ -364,19 +376,7 @@ io.on("connection", function(socket) {
 				games[playerData[socket.id].room].turn=getOpposite(playerData[socket.id].team);
 				io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard,games[playerData[socket.id].room].x.picture,games[playerData[socket.id].room].o.picture));
 				if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
-					let goldAmount=0;
-					loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-						if(result.length>0){
-							if(result[0].gold!=undefined){
-								goldAmount=result[0].gold;
-								console.log(goldAmount);
-							}
-						}
-					});
-					console.log(goldAmount);
-					goldAmount+=50;
-					loginInfo.updateOne({userName:playerData[socket.id].name},{ $set: {gold:goldAmount}},function(err, result) {
-					});
+					changeGold(playerData[socket.id].name,50);
 					io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
 					games[playerData[socket.id].room].turn="blank";
 				}
@@ -409,6 +409,7 @@ io.on("connection", function(socket) {
 					games[playerData[socket.id].room].turn=getOpposite(playerData[socket.id].team);
 					io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard,games[playerData[socket.id].room].x.picture,games[playerData[socket.id].room].o.picture));
 					if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
+						changeGold(playerData[socket.id].name,50);
 						io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
 						games[playerData[socket.id].room].turn="blank";
 					}
@@ -453,6 +454,7 @@ io.on("connection", function(socket) {
 					games[playerData[socket.id].room].gameBoard[x][y]=playerData[socket.id].team;
 					io.to(playerData[socket.id].room).emit("updateGameBoard",getGameBoardHtml(games[playerData[socket.id].room].gameBoard,games[playerData[socket.id].room].x.picture,games[playerData[socket.id].room].o.picture));
 					if(winCheck(games[playerData[socket.id].room].gameBoard,playerData[socket.id].team)){
+						changeGold(playerData[socket.id].name,50);
 						io.to(playerData[socket.id].room).emit("gameWon",playerData[socket.id].team);
 						games[playerData[socket.id].room].turn="blank";
 					}
