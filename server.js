@@ -40,15 +40,15 @@ var xShopItems=[		// 1st elem are the actual items. numbers are pts required to 
 	{id: 8, img:'img/xImg/space.jpg', pts: 4}
 ];
 var oShopItems=[		// 1st elem are the items. numbers are pts required to buy..
-	{id: 0, img:'img/oImg/soccer.jpg', pts: 2},
-	{id: 1, img:'img/oImg/baseball.jpg', pts: 2},
-	{id: 2, img:'img/oImg/donkeykong.jpg', pts: 3},
-	{id: 3, img:'img/oImg/firefighter.jpg', pts: 2},
-	{id: 4, img:'img/oImg/fredflintstone.jpg', pts: 2},
-	{id: 5, img:'img/oImg/luigi.jpg', pts: 3},
-	{id: 6, img:'img/oImg/mario.jpg', pts: 5},
-	{id: 7, img:'img/oImg/volcano.jpg', pts: 3},
-	{id: 8, img:'img/oImg/wolverine.jpg', pts: 4}
+	{id: 9, img:'img/oImg/soccer.jpg', pts: 2},
+	{id: 10, img:'img/oImg/baseball.jpg', pts: 2},
+	{id: 11, img:'img/oImg/donkeykong.jpg', pts: 3},
+	{id: 12, img:'img/oImg/firefighter.jpg', pts: 2},
+	{id: 13, img:'img/oImg/fredflintstone.jpg', pts: 2},
+	{id: 14, img:'img/oImg/luigi.jpg', pts: 3},
+	{id: 15, img:'img/oImg/mario.jpg', pts: 5},
+	{id: 16, img:'img/oImg/volcano.jpg', pts: 3},
+	{id: 17, img:'img/oImg/wolverine.jpg', pts: 4}
 ];
 var purchasedXtiles=[];	// populate this when you query the db collection. Used for building buildPurchasedTable() 
 var purchasedOtiles=[];
@@ -110,7 +110,7 @@ function buildNewShopTable() {
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br> Points required: "+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br> Gold required: "+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -119,7 +119,7 @@ function buildXshopTable() {
 function buildOshopTable() {
 	var tmpp = "<table id=\"otable\"><tr>";
 	for(var ting in oShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Points Required: "+oShopItems[ting].pts+" <br> " +oShopItems[ting].id+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Gold Required: "+oShopItems[ting].pts+" <br> " +oShopItems[ting].id+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -504,27 +504,24 @@ io.on("connection", function(socket) {
 	socket.on("purchaseTiles",function(selectedItem, errorFunction) {	// selectedItem are the items being purchased. store them in db under {purchased}
 		/* purchase selected tile(s). */
 		// store selected items in usersTiles db collection
-		loginInfo.find({userName:playerData[socket.id]}).toArray(function(err, result) {
-			if(result.purchased==0) {	// Found the item, dont put it in.
-				// loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"o",currentO:"x"});
+		loginInfo.find({purchased:selectedItem}).toArray(function(err, result) {
+			console.log("result.length: " + result.length);
+			if(result.length==0) {	// Found the item, dont put it in.
 				// remove the purchased tile from remaining available tile options
 				// call buildPurchasedTable() to update purchase table.
-
-			}
-			else {
-				
-				loginInfo.updateOne({userName:playerData[socket.id]}, {$push: {purchased:selectedItem}}, function(err, result) {
+				loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
 					console.log("updateOne() ret: "+err + " " + result);	// Something is afoot...
 					if(err != null) {
 						throw err;
-						
 					}
 					else {
-						
 						console.log("added pic with ID: " + selectedItem);
 					}
 				});
 				
+			}
+			else {
+				console.log("You already own this!");
 			}
 		});
 	});
