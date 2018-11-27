@@ -110,7 +110,7 @@ function buildNewShopTable() {
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br> Points required: "+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br> Points required: "+xShopItems[ting].pts+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -119,7 +119,7 @@ function buildXshopTable() {
 function buildOshopTable() {
 	var tmpp = "<table id=\"otable\"><tr>";
 	for(var ting in oShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Points Required: "+oShopItems[ting].pts+" <br> " +oShopItems[ting].id+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Points Required: "+oShopItems[ting].pts+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -212,7 +212,7 @@ function getPlayersHtml(room){
 	return ret;
 }
 function getMovesHtml(team,teamName){
-	var ret="Special Moves: "+teamName+"<br>";
+	var ret="<u><b>Team "+teamName+" Special Moves</b></u><br>";
 	ret+="Remove Moves: "+team.removeMoves.toString()+"<br>";
 	ret+="Double Moves: "+team.doubleMoves.toString();
 	return ret;
@@ -390,7 +390,7 @@ io.on("connection", function(socket) {
 			}
 		}
 		else{
-			errorFunction("It is not your turn");
+			errorFunction("<b>It is not your turn!</b><br><br>");
 		}
 	});
 	socket.on("removeMove",function(x,y,errorFunction){

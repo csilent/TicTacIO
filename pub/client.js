@@ -4,7 +4,7 @@ socket.on("fullGameBoard", function() {
 
 });
 socket.on("gameWon", function(winningTeam) {
-	let wonMessage="Team "+winningTeam+" has won the game";
+	let wonMessage="<b>Team "+winningTeam+" has won the game</b>";
 	$("#boardError").html(wonMessage);
 });
 socket.on("updateGames", function(games) {
