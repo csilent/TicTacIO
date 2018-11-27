@@ -51,12 +51,12 @@ socket.on("updateShop",function(shophtml){
 	$("#xtable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
-		socket.emit("purchaseTiles", this.id);  //crashes
+		socket.emit("purchaseTiles", this.id);  
 	 });
 	 $("#otable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
-		socket.emit("purchaseTiles", this.id);  //crashes
+		socket.emit("purchaseTiles", parseInt(this.id)+9.0);  //crashes when purchasing because this index matches the 'ID' but not the spot in the array.
 	 });
 
 });
