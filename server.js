@@ -110,7 +110,7 @@ function buildNewShopTable() {
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br>"+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+xShopItems[ting].img+" class=\"gameTile\"> <br> Points required: "+xShopItems[ting].pts+" <br>"+xShopItems[ting].id+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -119,7 +119,7 @@ function buildXshopTable() {
 function buildOshopTable() {
 	var tmpp = "<table id=\"otable\"><tr>";
 	for(var ting in oShopItems){
-		tmpp += "<td><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br>"+oShopItems[ting].pts+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Points Required: "+oShopItems[ting].pts+" <br> " +oShopItems[ting].id+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
@@ -493,7 +493,7 @@ io.on("connection", function(socket) {
 		socket.join('shop');
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildXshopTable());
-		io.emit("updateItemSelection");  // FIX - item Selection()
+		//io.emit("updateItemSelection");  // FIX - item Selection()
 	});
 	socket.on("oshopMenu",function(){
 		socket.leaveAll();
@@ -501,18 +501,29 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildOshopTable());
 	});
-	socket.on("purchaseTiles",function(selectedItem) {	// selectedItem are the items being purchased. store them in db under {purchased}
+	socket.on("purchaseTiles",function(selectedItem, errorFunction) {	// selectedItem are the items being purchased. store them in db under {purchased}
 		/* purchase selected tile(s). */
 		// store selected items in usersTiles db collection
 		loginInfo.find({userName:playerData[socket.id]}).toArray(function(err, result) {
-			if(result[0].purchased==0) {	// Found the item, dont put it in.
+			if(result.purchased==0) {	// Found the item, dont put it in.
 				// loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"o",currentO:"x"});
 				// remove the purchased tile from remaining available tile options
 				// call buildPurchasedTable() to update purchase table.
-				
+
 			}
 			else {
-				loginInfo.update({userName:playerData[socket.id]}, {$push: {purchased:selectedItem}});
+				
+				loginInfo.updateOne({userName:playerData[socket.id]}, {$push: {purchased:selectedItem}}, function(err, result) {
+					console.log("updateOne() ret: "+err + " " + result);	// Something is afoot...
+					if(err != null) {
+						throw err;
+						
+					}
+					else {
+						
+						console.log("added pic with ID: " + selectedItem);
+					}
+				});
 				
 			}
 		});

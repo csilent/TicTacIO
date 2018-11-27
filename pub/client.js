@@ -97,7 +97,7 @@ function startItAll() {
 		$("#lobby").hide();
 		$("#shop").show();
 		$(function() {
-			$("#shopTable").selectable();
+			//$("#shopTable").selectable();
 		});
 	});
 	$("#leaveShopButton").click(function(){
