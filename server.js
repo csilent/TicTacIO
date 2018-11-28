@@ -279,13 +279,13 @@ function getGameBoardHtml(gameBoard,xpic,opic){
 		ret+="<tr>";
 		for(j=0;j<gameBoard.length;j++){
 			if(gameBoard[i][j]==="x"){
-				ret+="<td> <img src=img/"+xpic+".png class=\"gameTile\"></td>";
+				ret+="<td> <img src=img/"+xpic+" class=\"gameTile\"></td>";
 			}
 			else if(gameBoard[i][j]==="o"){
-				ret+="<td> <img src=img/"+opic+".png class=\"gameTile\"></td>";
+				ret+="<td> <img src=img/"+opic+" class=\"gameTile\"></td>";
 			}
 			else{
-				ret+="<td> <img src=img/"+gameBoard[i][j]+".png class=\"gameTile\"></td>";
+				ret+="<td> <img src=img/blank.png class=\"gameTile\"></td>";
 			}
 
 		}
@@ -342,7 +342,7 @@ io.on("connection", function(socket) {
 	socket.on("newUser", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
 			if(result.length==0){
-				loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"x",currentO:"o"});
+				loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"x.png",currentO:"o.png"});
 				joinMainLobby(socket,dataFromClient.userName);
 				successFunction(true);
 			}else{
