@@ -60,6 +60,13 @@ socket.on("updateShop",function(shophtml){
 	 });
 
 });
+socket.on("updatePurchasedXtable", function(purchasedTiles) {
+	$("#purchasedItems").html(purchasedTiles);
+});
+socket.on("updatePurchasedOtable", function(purchasedTiles) {
+	$("#purchasedItems").html(purchasedTiles);
+});
+
 socket.on("updateItemSelection",function(){	// for Selection
 	$("#shopTable").selectable();
 });

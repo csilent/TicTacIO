@@ -6,6 +6,10 @@ table,th,td{
     width:150px;
 }
 
+.purchasedTile{
+    width:150px;
+}
+
 textarea {
     resize: none;
     width: 100%;

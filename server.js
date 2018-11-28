@@ -113,7 +113,9 @@ function buildOshopTable() {
 	return tmpp;
 }
 
-function buildxPurchasedTable() {
+
+//DrKow: Problems here because it is based upon a shared global variable.
+function buildxxPurchasedTable() {
 	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
 	var tmpp = "<table id=\"pxtable\"><tr>";
 	for(var tile in purchasedXtiles) {
@@ -122,19 +124,43 @@ function buildxPurchasedTable() {
 	tmpp += "</tr></table>";
 	return tmpp;
 }
-function buildoPurchasedTable() {
+function buildxPurchasedTable(cleanedXarray) {
+	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
+	var tmpp = "<table id=\"pxtable\"><tr>"; 
+	for(var tile of cleanedXarray) {
+		tmpp += "<td id=\""+xShopItems[tile].id+"\"><img src="+xShopItems[tile].img+" class=\"purchasedTile\"></td>";
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
+}
+
+
+function buildoPurchasedTable(cleanedOarray) {
 	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
 	var tmpp = "<table id=\"potable\"><tr>";
-	
-
+	for(var tile of cleanedOarray) {
+		tmpp += "<td id=\""+oShopItems[tile-9].id+"\"><img src="+oShopItems[tile-9].img+" class=\"purchasedTile\"></td>";	// need to -9 from the index becuase we +9 from the server
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
 }
-function separateXOtiles (retDBPurchases) {		// Since the purchased[] keeps each -> each time this is called the old is appended as well as the new tile purchase.
-	if(retDBPurchases < 9) {	// items 0-8 are x-tiles
-		purchasedXtiles.push(retDBPurchases);
+function separateXtiles (purchased) {		
+	let ret=[];
+	for(let i=0;i<purchased.length;i++){
+		if(purchased[i] < 9) {	// items 0-8 are x-tiles
+			ret.push(purchased[i]);
+		}
 	}
-	else {	// items 9-17 are o-tiles
-		purchasedOtiles.push(retDBPurchases);
+	return ret;
+}
+function separateOtiles (purchased) {		
+	let ret=[];
+	for(let i=0;i<purchased.length;i++){
+		if(purchased[i] >= 9) {	// items >=9 are o-tiles
+			ret.push(purchased[i]);
+		}
 	}
+	return ret;
 }
 
 function changeGold(user,amount){
@@ -512,31 +538,36 @@ io.on("connection", function(socket) {
 		/* purchase selected tile(s). */
 		if(selectedItem < 9) { // Items from xShopItems[]
 			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-				if(result.length>0) {
-					//loginInfo.collection('purchased').findOneAndUpdate	// Need to error check for pre-existing items that have been bought.
+				if(result.length>0) {	
+						// Need to error check for pre-existing items that have been bought.
 					if(xShopItems[selectedItem].pts <= result[0].gold) {
-						loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
-							if(err != null) {
-								throw err;
-							}
-							else {
-								changeGold(playerData[socket.id].name,(-1)*xShopItems[selectedItem].pts);
-								console.log("added pic with ID: " + selectedItem);
-								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-									purchasedXtiles = [];	// since we store the purchases already,  clear the array just before appending again
-									result[0].purchased.forEach(separateXOtiles);
-									console.log("updatedPurchased x-tiles[]: "+purchasedXtiles);
-								});
-							}
-							
-						});
+						if(result[0].purchased.indexOf(selectedItem)==-1) {
+							loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
+								if(err != null) {
+									throw err;
+								}
+								else {
+									changeGold(playerData[socket.id].name,(-1)*xShopItems[selectedItem].pts);
+									console.log("added pic with ID: " + selectedItem);
+									loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+										var retArray = separateXtiles(result[0].purchased);
+										var retBuild = buildxPurchasedTable(retArray);
+										socket.emit("updatePurchasedXtable", retBuild);
+									});
+								}
+								
+							});
+						}
+						else {
+							console.log("You already own this Tile!");
+						}
 					}
 					else {
 						console.log("You don't have enough Gold!");
 					}
 				}
 				else {
-					console.log("You already own this!");
+					console.log("Bad user. Not in DB.");
 				}
 			});
 		}
@@ -544,27 +575,32 @@ io.on("connection", function(socket) {
 			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
 				if(result.length>0) {
 					if(oShopItems[selectedItem-9.0].pts <= result[0].gold) {
-						loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
-							if(err != null) {
-								throw err;
-							}
-							else {
-								changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
-								console.log("added pic with ID: " + selectedItem);
-								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-									purchasedOtiles = [];
-									result[0].purchased.forEach(separateXOtiles);
-									console.log("updatedPurchased o-tiles[]: "+purchasedOtiles);
-								});
-							}
-						});
+						if(result[0].purchased.indexOf(selectedItem)==-1) {
+							loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
+								if(err != null) {
+									throw err;
+								}
+								else {
+									changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
+									console.log("added pic with ID: " + selectedItem);
+									loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+										var retArray = separateOtiles(result[0].purchased);
+										var retBuild = buildoPurchasedTable(retArray);
+										socket.emit("updatePurchasedOtable", retBuild);
+									});
+								}
+							});
+						}
+						else {
+							console.log("You already own this Tile!");
+						}
 					}
 					else {
 						console.log("You don't have enough Gold!");
 					}
 				}
 				else {
-					console.log("You already own this!");
+					console.log("Bad User. Not in DB.");
 				}
 			});
 		}
