@@ -79,18 +79,6 @@ function hashString(str){
 	}
 	return hash;
 }
-function buildShopTable(){	 
-	var table = document.createElement("table");	
-	var i = 0;
-	for(var r=0;r<3;r++){
-		var row = table.insertRow(-1);
-		for(c=0;c<3;c++){
-			var col = row.insertCell(-1);
-			col.appendChild(document.createTextNode(shopItems[i++]));
-		}
-	}
-	document.body.appendChild(table);
-}
 
 function buildNewShopTable() {
 	var tmp = "<table>";
@@ -125,11 +113,30 @@ function buildOshopTable() {
 	return tmpp;
 }
 
-function buildPurchasedTable() {
+function buildxPurchasedTable() {
 	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
+	var tmpp = "<table id=\"pxtable\"><tr>";
+	for(var tile in purchasedXtiles) {
+		tmpp += "<td id=\""+tile+"\"><img src="+xShopItems[tile].img+" class=\"purchasedTile\"> </td>";
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
+}
+function buildoPurchasedTable() {
+	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
+	var tmpp = "<table id=\"potable\"><tr>";
 	
 
 }
+function separateXOtiles (retDBPurchases) {		// Since the purchased[] keeps each -> each time this is called the old is appended as well as the new tile purchase.
+	if(retDBPurchases < 9) {	// items 0-8 are x-tiles
+		purchasedXtiles.push(retDBPurchases);
+	}
+	else {	// items 9-17 are o-tiles
+		purchasedOtiles.push(retDBPurchases);
+	}
+}
+
 function changeGold(user,amount){
 	loginInfo.find({userName:user}).toArray(function(err, result) {
 		if(result.length>0){
@@ -506,6 +513,7 @@ io.on("connection", function(socket) {
 		if(selectedItem < 9) { // Items from xShopItems[]
 			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
 				if(result.length>0) {
+					//loginInfo.collection('purchased').findOneAndUpdate	// Need to error check for pre-existing items that have been bought.
 					if(xShopItems[selectedItem].pts <= result[0].gold) {
 						loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
 							if(err != null) {
@@ -514,7 +522,13 @@ io.on("connection", function(socket) {
 							else {
 								changeGold(playerData[socket.id].name,(-1)*xShopItems[selectedItem].pts);
 								console.log("added pic with ID: " + selectedItem);
+								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+									purchasedXtiles = [];	// since we store the purchases already,  clear the array just before appending again
+									result[0].purchased.forEach(separateXOtiles);
+									console.log("updatedPurchased x-tiles[]: "+purchasedXtiles);
+								});
 							}
+							
 						});
 					}
 					else {
@@ -537,6 +551,11 @@ io.on("connection", function(socket) {
 							else {
 								changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
 								console.log("added pic with ID: " + selectedItem);
+								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+									purchasedOtiles = [];
+									result[0].purchased.forEach(separateXOtiles);
+									console.log("updatedPurchased o-tiles[]: "+purchasedOtiles);
+								});
 							}
 						});
 					}

@@ -51,7 +51,7 @@ socket.on("updateShop",function(shophtml){
 	$("#xtable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
-		socket.emit("purchaseTiles", this.id);  
+		socket.emit("purchaseTiles", parseInt(this.id));  
 	 });
 	 $("#otable td").click(function(){   //selection testing
 		console.log(this.id);
