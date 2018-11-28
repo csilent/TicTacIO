@@ -79,18 +79,6 @@ function hashString(str){
 	}
 	return hash;
 }
-function buildShopTable(){	 
-	var table = document.createElement("table");	
-	var i = 0;
-	for(var r=0;r<3;r++){
-		var row = table.insertRow(-1);
-		for(c=0;c<3;c++){
-			var col = row.insertCell(-1);
-			col.appendChild(document.createTextNode(shopItems[i++]));
-		}
-	}
-	document.body.appendChild(table);
-}
 
 function buildNewShopTable() {
 	var tmp = "<table>";
@@ -119,19 +107,36 @@ function buildXshopTable() {
 function buildOshopTable() {
 	var tmpp = "<table id=\"otable\"><tr>";
 	for(var ting in oShopItems){
-		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Points Required: "+oShopItems[ting].pts+"</td>";
+		tmpp += "<td id=\""+ting+"\"><img src="+oShopItems[ting].img+" class=\"gameTile\"> <br> Gold Required: "+oShopItems[ting].pts+"</td>";
 	}
 	tmpp += "</tr></table>";
 	return tmpp;
 }
 
-function buildPurchasedTable() {
-	/* query the usersTiles collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
-	
-	
+function buildxPurchasedTable() {
+	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
+	var tmpp = "<table id=\"pxtable\"><tr>";
+	for(var tile in purchasedXtiles) {
+		tmpp += "<td id=\""+tile+"\"><img src="+xShopItems[tile].img+" class=\"purchasedTile\"> </td>";
+	}
+	tmpp += "</tr></table>";
+	return tmpp;
+}
+function buildoPurchasedTable() {
+	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
+	var tmpp = "<table id=\"potable\"><tr>";
 	
 
 }
+function separateXOtiles (retDBPurchases) {		// Since the purchased[] keeps each -> each time this is called the old is appended as well as the new tile purchase.
+	if(retDBPurchases < 9) {	// items 0-8 are x-tiles
+		purchasedXtiles.push(retDBPurchases);
+	}
+	else {	// items 9-17 are o-tiles
+		purchasedOtiles.push(retDBPurchases);
+	}
+}
+
 function changeGold(user,amount){
 	loginInfo.find({userName:user}).toArray(function(err, result) {
 		if(result.length>0){
@@ -495,7 +500,7 @@ io.on("connection", function(socket) {
 		socket.join('shop');
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildXshopTable());
-		//io.emit("updateItemSelection");  // FIX - item Selection()
+		
 	});
 	socket.on("oshopMenu",function(){
 		socket.leaveAll();
@@ -503,29 +508,66 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildOshopTable());
 	});
-	socket.on("purchaseTiles",function(selectedItem, errorFunction) {	// selectedItem are the items being purchased. store them in db under {purchased}
+	socket.on("purchaseTiles",function(selectedItem, errorFunction) {
 		/* purchase selected tile(s). */
-		// store selected items in usersTiles db collection
-		loginInfo.find({purchased:selectedItem}).toArray(function(err, result) {
-			console.log("result.length: " + result.length);
-			if(result.length==0) {	// Found the item, dont put it in.
-				// remove the purchased tile from remaining available tile options
-				// call buildPurchasedTable() to update purchase table.
-				loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
-					console.log("updateOne() ret: "+err + " " + result);	// Something is afoot...
-					if(err != null) {
-						throw err;
+		if(selectedItem < 9) { // Items from xShopItems[]
+			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+				if(result.length>0) {
+					//loginInfo.collection('purchased').findOneAndUpdate	// Need to error check for pre-existing items that have been bought.
+					if(xShopItems[selectedItem].pts <= result[0].gold) {
+						loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
+							if(err != null) {
+								throw err;
+							}
+							else {
+								changeGold(playerData[socket.id].name,(-1)*xShopItems[selectedItem].pts);
+								console.log("added pic with ID: " + selectedItem);
+								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+									purchasedXtiles = [];	// since we store the purchases already,  clear the array just before appending again
+									result[0].purchased.forEach(separateXOtiles);
+									console.log("updatedPurchased x-tiles[]: "+purchasedXtiles);
+								});
+							}
+							
+						});
 					}
 					else {
-						console.log("added pic with ID: " + selectedItem);
+						console.log("You don't have enough Gold!");
 					}
-				});
-				
-			}
-			else {
-				console.log("You already own this!");
-			}
-		});
+				}
+				else {
+					console.log("You already own this!");
+				}
+			});
+		}
+		else {	// Items from oShopItems[]
+			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+				if(result.length>0) {
+					if(oShopItems[selectedItem-9.0].pts <= result[0].gold) {
+						loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {
+							if(err != null) {
+								throw err;
+							}
+							else {
+								changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
+								console.log("added pic with ID: " + selectedItem);
+								loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+									purchasedOtiles = [];
+									result[0].purchased.forEach(separateXOtiles);
+									console.log("updatedPurchased o-tiles[]: "+purchasedOtiles);
+								});
+							}
+						});
+					}
+					else {
+						console.log("You don't have enough Gold!");
+					}
+				}
+				else {
+					console.log("You already own this!");
+				}
+			});
+		}
 	});
 	socket.on("leaveShop",function(){
 		socket.leaveAll();
