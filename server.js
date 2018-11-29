@@ -114,16 +114,6 @@ function buildOshopTable() {
 }
 
 
-//DrKow: Problems here because it is based upon a shared global variable.
-function buildxxPurchasedTable() {
-	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
-	var tmpp = "<table id=\"pxtable\"><tr>";
-	for(var tile in purchasedXtiles) {
-		tmpp += "<td id=\""+tile+"\"><img src="+xShopItems[tile].img+" class=\"purchasedTile\"> </td>";
-	}
-	tmpp += "</tr></table>";
-	return tmpp;
-}
 function buildxPurchasedTable(cleanedXarray) {
 	/* query the users purchase collection, insert each element from collection into new purchase array, build a new table based on purchase array.  */
 	var tmpp = "<table id=\"pxtable\"><tr>"; 
@@ -553,6 +543,11 @@ io.on("connection", function(socket) {
 				console.log("O-tile updated successfully");
 			}
 		});
+	});
+	socket.on("getCurrentGold", function(){
+		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err,result) {
+			socket.emit("updateGold", "<p> Currnet Gold: <b>"+result[0].gold+ "</b><p>");
+		})
 	});
 	socket.on("purchaseTiles",function(selectedItem, errorFunction) {
 		/* purchase selected tile(s). */
