@@ -605,7 +605,7 @@ io.on("connection", function(socket) {
 									throw err;
 								}
 								else {
-									var pts = purchaseHtml(oShopItems[selectedItem].pts)
+									var pts = purchaseHtml(oShopItems[selectedItem-9.0].pts)
 									socket.emit("purchaseOne",pts);
 									changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
 									console.log("added pic with ID: " + selectedItem);
