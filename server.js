@@ -305,6 +305,12 @@ function createGameBoard(n){
 	}
 	return gameBoard;
 }
+
+function purchaseHtml(pts){
+	var ret="<b>You bought an item for "+pts+" gold</b><br>";
+	return ret;
+}
+
 io.on("connection", function(socket) {
 	console.log("Somebody connected.");
 	socket.join('preLobby');
@@ -566,6 +572,9 @@ io.on("connection", function(socket) {
 									throw err;
 								}
 								else {
+									//socket.emit("purchaseOne",playerData[socket.id].gold);
+									var pts = purchaseHtml(xShopItems[selectedItem].pts)
+									socket.emit("purchaseOne",pts);
 									changeGold(playerData[socket.id].name,(-1)*xShopItems[selectedItem].pts);
 									console.log("added pic with ID: " + selectedItem);
 									loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
@@ -579,15 +588,15 @@ io.on("connection", function(socket) {
 							});
 						}
 						else {
-							console.log("You already own this Tile!");
+							socket.emit("purchaseOne","<b>You already own this Tile!</b><br>");
 						}
 					}
 					else {
-						console.log("You don't have enough Gold!");
+						socket.emit("purchaseOne","<b>You don't have enough Gold!</b><br>");
 					}
 				}
 				else {
-					console.log("Bad user. Not in DB.");
+					socket.emit("purchaseOne","<b>Bad user. Not in DB.</b><br>");
 				}
 			});
 		}
@@ -601,6 +610,8 @@ io.on("connection", function(socket) {
 									throw err;
 								}
 								else {
+									var pts = purchaseHtml(oShopItems[selectedItem].pts)
+									socket.emit("purchaseOne",pts);
 									changeGold(playerData[socket.id].name,(-1)*oShopItems[selectedItem-9.0].pts);
 									console.log("added pic with ID: " + selectedItem);
 									loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
@@ -613,15 +624,15 @@ io.on("connection", function(socket) {
 							});
 						}
 						else {
-							console.log("You already own this Tile!");
+							socket.emit("purchaseOne","<b>You already own this Tile!</b><br>");
 						}
 					}
 					else {
-						console.log("You don't have enough Gold!");
+						socket.emit("purchaseOne","<b>You don't have enough Gold!</b><br>");
 					}
 				}
 				else {
-					console.log("Bad User. Not in DB.");
+					socket.emit("purchaseOne","<b>Bad user. Not in DB.</b><br>");
 				}
 			});
 		}

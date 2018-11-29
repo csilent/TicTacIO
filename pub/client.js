@@ -30,7 +30,7 @@ socket.on("updateSpecialMoves",function(removeMoves,doubleMoves){
 socket.on("updatePlayers",function(players){
 	$("#players").html(players);
 });
-socket.on("updateGameBoard",function(gameBoard){
+socket.on("updateGameBoard",function(gameBoard){ /////////
 	$("#gameBoard").html(gameBoard);
 	$("#gameBoard td").click(function() {
 		let x=$(this).parent().index();
@@ -41,6 +41,9 @@ socket.on("updateGameBoard",function(gameBoard){
 			});
 		});
 	});
+});
+socket.on("purchaseOne", function(pts) {
+	$("#purchaseError").html(pts);
 });
 socket.on("sayAll", function(dataFromServer) {
 	$("#chatWindow").append(dataFromServer+"\n");
