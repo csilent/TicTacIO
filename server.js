@@ -535,14 +535,23 @@ io.on("connection", function(socket) {
 		socket.emit("updateShop", buildOshopTable());
 	});
 	socket.on("changeCurrentXtile", function(selectedPurchase){ // Added ~notSure
-		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-			console.log("GOTHERE:: "+result[0].currentX);
-			result[0].currentX = selectedPurchase;
+		loginInfo.updateOne({userName:playerData[socket.id].name}, {$set: {currentX:xShopItems[selectedPurchase].img}}, function(err, result) {
+			if(err != null) {
+				throw err;
+			}
+			else {
+				console.log("X-tile updated successfully");
+			}
 		});
 	});
 	socket.on("changeCurrentOtile", function(selectedPurchase){	// Added ~notsure
-		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-			result[0].currentO = selectedPurchase;
+		loginInfo.updateOne({userName:playerData[socket.id].name}, {$set: {currentO:oShopItems[selectedPurchase-9].img}}, function(err, result) {
+			if(err != null) {
+				throw err;
+			}
+			else {
+				console.log("O-tile updated successfully");
+			}
 		});
 	});
 	socket.on("purchaseTiles",function(selectedItem, errorFunction) {
@@ -550,7 +559,6 @@ io.on("connection", function(socket) {
 		if(selectedItem < 9) { // Items from xShopItems[]
 			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
 				if(result.length>0) {	
-						// Need to error check for pre-existing items that have been bought.
 					if(xShopItems[selectedItem].pts <= result[0].gold) {
 						if(result[0].purchased.indexOf(selectedItem)==-1) {
 							loginInfo.updateOne({userName:playerData[socket.id].name}, {$push: {purchased:selectedItem}}, function(err, result) {

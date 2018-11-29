@@ -56,7 +56,7 @@ socket.on("updateShop",function(shophtml){
 	 $("#otable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
-		socket.emit("purchaseTiles", parseInt(this.id)+9.0);  //crashes when purchasing because this index matches the 'ID' but not the spot in the array.
+		socket.emit("purchaseTiles", parseInt(this.id)+9.0);  
 	 });
 	 $("#pxtable td").click(function() {
 		$(this).addClass('selected').siblings().removeClass('selected');
