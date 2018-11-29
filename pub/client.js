@@ -51,24 +51,30 @@ socket.on("sayAll", function(dataFromServer) {
 });
 socket.on("updateShop",function(shophtml){
 	$("#shopTable").html(shophtml);
+	socket.emit("getCurrentGold");
 	$("#xtable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
 		socket.emit("purchaseTiles", parseInt(this.id));  
+		socket.emit("getCurrentGold");
 	 });
 	 $("#otable td").click(function(){   //selection testing
 		console.log(this.id);
 		$(this).addClass('selected').siblings().removeClass('selected');
-		socket.emit("purchaseTiles", parseInt(this.id)+9.0);  
+		socket.emit("purchaseTiles", parseInt(this.id)+9.0);
+		socket.emit("getCurrentGold");
+		  
 	 });
 	 $("#pxtable td").click(function() {
 		$(this).addClass('selected').siblings().removeClass('selected');
 		socket.emit("changeCurrentXtile", this.id);
+		socket.emit("getCurrentGold");
 		console.log("pxtable id: "+this.id);
 	 });
 	 $("#potable td").click(function() {
 		$(this).addClass('selected').siblings().removeClass('selected');
 		socket.emit("changeCurrentOtile", this.id);
+		socket.emit("getCurrentGold");
 		console.log("potable id: "+this.id);
 	 });
 });
@@ -82,6 +88,9 @@ socket.on("updatePurchasedOtable", function(purchasedTiles) {
 socket.on("updateItemSelection",function(){	// for Selection
 	$("#shopTable").selectable();
 });
+socket.on("updateGold", function(retGoldValue) {
+	$("#goldMeter").html(retGoldValue);
+})
 
 function startItAll() {
 	$("#lobby").hide();
