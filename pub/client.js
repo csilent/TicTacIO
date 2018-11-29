@@ -58,7 +58,14 @@ socket.on("updateShop",function(shophtml){
 		$(this).addClass('selected').siblings().removeClass('selected');
 		socket.emit("purchaseTiles", parseInt(this.id)+9.0);  //crashes when purchasing because this index matches the 'ID' but not the spot in the array.
 	 });
-
+	 $("#pxtable td").click(function() {
+		$(this).addClass('selected').siblings().removeClass('selected');
+		console.log("pxtable id: "+this.id);
+	 });
+	 $("#potable td").click(function() {
+		$(this).addClass('selected').siblings().removeClass('selected');
+		console.log("potable id: "+this.id);
+	 });
 });
 socket.on("updatePurchasedXtable", function(purchasedTiles) {
 	$("#purchasedItems").html(purchasedTiles);

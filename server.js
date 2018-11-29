@@ -534,6 +534,16 @@ io.on("connection", function(socket) {
 		playerData[socket.id].room='shop';
 		socket.emit("updateShop", buildOshopTable());
 	});
+	socket.on("changeCurrentXtile", function(selectedPurchase){ // Added ~notSure
+		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+			result[0].currentX == selectedPurchase;
+		});
+	});
+	socket.on("changeCurrentOtile", function(selectedPurchase){	// Added ~notsure
+		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+			result[0].currentO == selectedPurchase;
+		});
+	});
 	socket.on("purchaseTiles",function(selectedItem, errorFunction) {
 		/* purchase selected tile(s). */
 		if(selectedItem < 9) { // Items from xShopItems[]
@@ -553,6 +563,7 @@ io.on("connection", function(socket) {
 										var retArray = separateXtiles(result[0].purchased);
 										var retBuild = buildxPurchasedTable(retArray);
 										socket.emit("updatePurchasedXtable", retBuild);
+										socket.emit("updateShop", buildXshopTable());
 									});
 								}
 								
@@ -587,6 +598,7 @@ io.on("connection", function(socket) {
 										var retArray = separateOtiles(result[0].purchased);
 										var retBuild = buildoPurchasedTable(retArray);
 										socket.emit("updatePurchasedOtable", retBuild);
+										socket.emit("updateShop", buildOshopTable());
 									});
 								}
 							});
