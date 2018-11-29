@@ -5,8 +5,8 @@ var ObjectID = mongodb.ObjectID;
 var client = new MongoClient("mongodb://localhost:27017", { useNewUrlParser: true });
 var db;
 
-var fs = require('fs');  //File system stuff
-var key = fs.readFileSync('encryption/myKey.pem'); //sync here means it blocks until the whole file is loaded (unusual for node.js, but ok in this case)
+var fs = require('fs');
+var key = fs.readFileSync('encryption/myKey.pem');
 var cert = fs.readFileSync( 'encryption/myCert.crt' );
 var options = {
   key: key,
