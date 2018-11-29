@@ -70,10 +70,10 @@ socket.on("updateShop",function(shophtml){
 	 });
 });
 socket.on("updatePurchasedXtable", function(purchasedTiles) {
-	$("#purchasedItems").html(purchasedTiles);
+	$("#purchasedXItems").html(purchasedTiles);
 });
 socket.on("updatePurchasedOtable", function(purchasedTiles) {
-	$("#purchasedItems").html(purchasedTiles);
+	$("#purchasedOItems").html(purchasedTiles);
 });
 
 socket.on("updateItemSelection",function(){	// for Selection
@@ -117,6 +117,8 @@ function startItAll() {
 		socket.emit("shopMenu");
 		$("#lobby").hide();
 		$("#shop").show();
+		$("#purchasedOItems").hide();
+		$("#purchasedXItems").show();
 		$(function() {
 			//$("#shopTable").selectable();
 		});
@@ -128,16 +130,17 @@ function startItAll() {
 	});
 	$("#xShopButton").click(function(){	// Display xShopItems. 'Refactor'
 		socket.emit("shopMenu");
+		$("#purchasedOItems").hide();
+		$("#purchasedXItems").show();
 		$("#lobby").hide();
 		$("#shop").show();
 	});
 	$("#oShopButton").click(function(){	// Display oShopItems. 'Refactor'
 		socket.emit("oshopMenu");
+		$("#purchasedXItems").hide();
+		$("#purchasedOItems").show();
 		$("#lobby").hide();
 		$("#shop").show();
-	});
-	$("#purchase").click(function(){	// purchase selected tiles.
-		socket.emit("purchaseTiles");
 	});
 
 	$("#newGameButton").click(function(){
