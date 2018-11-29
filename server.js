@@ -635,18 +635,36 @@ io.on("connection", function(socket) {
 	socket.on("joinGame",function(gameName,successFunction){
 		if(getNumPlayers(gameName)<2){
 			socket.leaveAll();
-			socket.join(gameName);
 			playerData[socket.id].room=gameName;
-			loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-				if(result.length>0){
-					if(result[0].currentX!=undefined){
-						games[gameName].x.picture=result[0].currentX;
+			var clients = io.sockets.adapter.rooms[gameName].sockets;
+			let team='x';
+			for(var clientId in clients ){
+				console.log(getOpposite(playerData[clientId].team));
+				team=getOpposite(playerData[clientId].team);
+			}
+			socket.join(gameName);
+			if(team=='x'){
+				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+					if(result.length>0){
+						if(result[0].currentX!=undefined){
+							games[gameName].x.picture=result[0].currentX;
+						}
 					}
-				}
-			});
+				});
+				playerData[socket.id].team='x';
+			}
+			else{
+				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+					if(result.length>0){
+						if(result[0].currentO!=undefined){
+							games[gameName].o.picture=result[0].currentO;
+						}
+					}
+				});
+				playerData[socket.id].team='o';
+			}
 			io.to(gameName).emit("updatePlayers",getPlayersHtml(gameName));
 			io.to(gameName).emit("updateGameBoard",getGameBoardHtml(games[gameName].gameBoard,games[gameName].x.picture,games[gameName].o.picture));
-			playerData[socket.id].team='x';
 			io.to(gameName).emit("updateSpecialMoves",getMovesHtml(games[gameName].x,"x"),getMovesHtml(games[gameName].o,"o"));
 			successFunction(true);
 		}
