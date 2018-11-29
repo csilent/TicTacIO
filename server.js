@@ -536,12 +536,13 @@ io.on("connection", function(socket) {
 	});
 	socket.on("changeCurrentXtile", function(selectedPurchase){ // Added ~notSure
 		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-			result[0].currentX == selectedPurchase;
+			console.log("GOTHERE:: "+result[0].currentX);
+			result[0].currentX = selectedPurchase;
 		});
 	});
 	socket.on("changeCurrentOtile", function(selectedPurchase){	// Added ~notsure
 		loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-			result[0].currentO == selectedPurchase;
+			result[0].currentO = selectedPurchase;
 		});
 	});
 	socket.on("purchaseTiles",function(selectedItem, errorFunction) {

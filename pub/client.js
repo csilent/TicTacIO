@@ -60,10 +60,12 @@ socket.on("updateShop",function(shophtml){
 	 });
 	 $("#pxtable td").click(function() {
 		$(this).addClass('selected').siblings().removeClass('selected');
+		socket.emit("changeCurrentXtile", this.id);
 		console.log("pxtable id: "+this.id);
 	 });
 	 $("#potable td").click(function() {
 		$(this).addClass('selected').siblings().removeClass('selected');
+		socket.emit("changeCurrentOtile", this.id);
 		console.log("potable id: "+this.id);
 	 });
 });
