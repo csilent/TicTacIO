@@ -279,10 +279,10 @@ function getGameBoardHtml(gameBoard,xpic,opic){
 		ret+="<tr>";
 		for(j=0;j<gameBoard.length;j++){
 			if(gameBoard[i][j]==="x"){
-				ret+="<td> <img src=img/"+xpic+" class=\"gameTile\"></td>";
+				ret+="<td> <img src="+xpic+" class=\"gameTile\"></td>";
 			}
 			else if(gameBoard[i][j]==="o"){
-				ret+="<td> <img src=img/"+opic+" class=\"gameTile\"></td>";
+				ret+="<td> <img src="+opic+" class=\"gameTile\"></td>";
 			}
 			else{
 				ret+="<td> <img src=img/blank.png class=\"gameTile\"></td>";
@@ -342,7 +342,7 @@ io.on("connection", function(socket) {
 	socket.on("newUser", function(dataFromClient,successFunction) {
 		loginInfo.find({userName:dataFromClient.userName}).toArray(function(err, result) {
 			if(result.length==0){
-				loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"x.png",currentO:"o.png"});
+				loginInfo.insertOne({userName:dataFromClient.userName,password:hashString(dataFromClient.password),gold:0,purchased:[],currentX:"img/x.png",currentO:"img/o.png"});
 				joinMainLobby(socket,dataFromClient.userName);
 				successFunction(true);
 			}else{
@@ -362,8 +362,8 @@ io.on("connection", function(socket) {
 			gameBoardSize:boardSize,
 			gameBoard:createGameBoard(boardSize),
 			turn:firstTeam,
-			x:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"x",currentMove:"placePiece"},
-			o:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"o",currentMove:"placePiece"}
+			x:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"img/x.png",currentMove:"placePiece"},
+			o:{removeMoves:numOfRemoveMoves,doubleMoves:numOfDoubleMoves,picture:"img/o.png",currentMove:"placePiece"}
 		};
 		let roomString=playerData[socket.id].name;
 		playerData[socket.id].room=roomString;
