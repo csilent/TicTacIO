@@ -80,21 +80,6 @@ function hashString(str){
 	return hash;
 }
 
-function buildNewShopTable() {
-	var tmp = "<table>";
-	for(var i = 0; i < 3; i++) {
-		tmp += "<tr>";
-		for(var j = 0; j < 3; j++) {
-			for(var pic in xShopItems) {
-				tmp += "<td><img src="+xShopItems[pic].img+" class=\"gameTile\", id=\"shopTable\"> <br>"+xShopItems[pic].pts+"</td>";
-			}
-		}
-		tmp += "</tr>";
-	}
-	tmp += "</table>";
-	return tmp;
-}
-
 function buildXshopTable() {
 	var tmpp = "<table id=\"xtable\"><tr>";
 	for(var ting in xShopItems){
@@ -377,6 +362,74 @@ io.on("connection", function(socket) {
 		io.to(roomString).emit("updateSpecialMoves",getMovesHtml(games[roomString].x,"x"),getMovesHtml(games[roomString].o,"o"));
 		playerData[socket.id].team='o';
 	});
+	socket.on("joinGame",function(gameName,successFunction){
+		if(getNumPlayers(gameName)<2){
+			socket.leaveAll();
+			playerData[socket.id].room=gameName;
+			var clients = io.sockets.adapter.rooms[gameName].sockets;
+			let team='x';
+			for(var clientId in clients ){
+				console.log(getOpposite(playerData[clientId].team));
+				team=getOpposite(playerData[clientId].team);
+			}
+			socket.join(gameName);
+			if(team=='x'){
+				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+					if(result.length>0){
+						if(result[0].currentX!=undefined){
+							games[gameName].x.picture=result[0].currentX;
+						}
+					}
+				});
+				playerData[socket.id].team='x';
+			}
+			else{
+				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
+					if(result.length>0){
+						if(result[0].currentO!=undefined){
+							games[gameName].o.picture=result[0].currentO;
+						}
+					}
+				});
+				playerData[socket.id].team='o';
+			}
+			io.to(gameName).emit("updatePlayers",getPlayersHtml(gameName));
+			io.to(gameName).emit("updateGameBoard",getGameBoardHtml(games[gameName].gameBoard,games[gameName].x.picture,games[gameName].o.picture));
+			io.to(gameName).emit("updateSpecialMoves",getMovesHtml(games[gameName].x,"x"),getMovesHtml(games[gameName].o,"o"));
+			successFunction(true);
+		}
+		else{
+			successFunction(false);
+		}
+	});
+	socket.on("leaveGame",function(){
+		let room=playerData[socket.id].room;
+		if(getNumPlayers(room)===1){
+			delete games[room];
+			socket.leaveAll();
+			socket.join('lobby');
+		}
+		else{
+			socket.leaveAll();
+			socket.join('lobby');
+			io.to(room).emit("updatePlayers",getPlayersHtml(room));
+			playerData[socket.id].room='lobby';
+		}
+		io.emit("updateGames",getGamesHtml());
+	});
+	socket.on("getPlayers",function(setHtml){
+		setHtml(getPlayersHtml(playerData[socket.id].room));
+	});
+	socket.on("sendChat", function(textMessageFromClient) {
+		var s = new Date();
+		io.emit("sayAll", s.getHours() + ":" +  s.getMinutes() + ":" + s.getSeconds() + " " + playerData[socket.id].name + " >  " + textMessageFromClient);
+	});
+	socket.on("getGames",function(setHtml){
+		setHtml(getGamesHtml());
+	});
+	socket.on("joinedLobby",function(){
+		io.to('lobby').emit("updateGames",getGamesHtml());
+	});
 	socket.on("getMoveType",function(getMove){
 		if(playerData[socket.id].team==="o"){
 			console.log(games[playerData[socket.id].room].o.currentMove);
@@ -511,12 +564,6 @@ io.on("connection", function(socket) {
 			errorFunction("It is not your turn");
 		}
 	});
-	socket.on("getGames",function(setHtml){
-		setHtml(getGamesHtml());
-	});
-	socket.on("joinedLobby",function(){
-		io.to('lobby').emit("updateGames",getGamesHtml());
-	});
 	socket.on("shopMenu",function(){
 		socket.leaveAll();
 		socket.join('shop');
@@ -637,68 +684,6 @@ io.on("connection", function(socket) {
 		socket.join('lobby');
 		playerData[socket.id].room='lobby';
 		io.to("updateGames",getGamesHtml());
-	});
-	socket.on("joinGame",function(gameName,successFunction){
-		if(getNumPlayers(gameName)<2){
-			socket.leaveAll();
-			playerData[socket.id].room=gameName;
-			var clients = io.sockets.adapter.rooms[gameName].sockets;
-			let team='x';
-			for(var clientId in clients ){
-				console.log(getOpposite(playerData[clientId].team));
-				team=getOpposite(playerData[clientId].team);
-			}
-			socket.join(gameName);
-			if(team=='x'){
-				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-					if(result.length>0){
-						if(result[0].currentX!=undefined){
-							games[gameName].x.picture=result[0].currentX;
-						}
-					}
-				});
-				playerData[socket.id].team='x';
-			}
-			else{
-				loginInfo.find({userName:playerData[socket.id].name}).toArray(function(err, result) {
-					if(result.length>0){
-						if(result[0].currentO!=undefined){
-							games[gameName].o.picture=result[0].currentO;
-						}
-					}
-				});
-				playerData[socket.id].team='o';
-			}
-			io.to(gameName).emit("updatePlayers",getPlayersHtml(gameName));
-			io.to(gameName).emit("updateGameBoard",getGameBoardHtml(games[gameName].gameBoard,games[gameName].x.picture,games[gameName].o.picture));
-			io.to(gameName).emit("updateSpecialMoves",getMovesHtml(games[gameName].x,"x"),getMovesHtml(games[gameName].o,"o"));
-			successFunction(true);
-		}
-		else{
-			successFunction(false);
-		}
-	});
-	socket.on("leaveGame",function(){
-		let room=playerData[socket.id].room;
-		if(getNumPlayers(room)===1){
-			delete games[room];
-			socket.leaveAll();
-			socket.join('lobby');
-		}
-		else{
-			socket.leaveAll();
-			socket.join('lobby');
-			io.to(room).emit("updatePlayers",getPlayersHtml(room));
-			playerData[socket.id].room='lobby';
-		}
-		io.emit("updateGames",getGamesHtml());
-	});
-	socket.on("getPlayers",function(setHtml){
-		setHtml(getPlayersHtml(playerData[socket.id].room));
-	});
-	socket.on("sendChat", function(textMessageFromClient) {
-		var s = new Date();
-		io.emit("sayAll", s.getHours() + ":" +  s.getMinutes() + ":" + s.getSeconds() + " " + playerData[socket.id].name + " >  " + textMessageFromClient);
 	});
 });
 client.connect(function(err) {
